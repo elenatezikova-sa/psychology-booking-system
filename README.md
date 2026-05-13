@@ -149,7 +149,7 @@ flowchart LR
     UC_Book -.->|«include»| UC_Pay
     UC_EditProfile -.->|«include»| UC_Docs
     UC_Verify -.->|«include»| UC_Docs
-    UC_Profile -.->|«extend»| UC_PreMsg
+    UC_Profile <-.-|«extend»| UC_PreMsg
 ```
 
 👉 [diagrams/uml/usecase_mindspace.puml](./diagrams/uml/usecase_mindspace.puml)
