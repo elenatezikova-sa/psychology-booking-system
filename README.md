@@ -41,6 +41,7 @@
 │   └── UserStories_MindSpace.docx      ← пользовательские истории (22 US)
 ├── 📁 diagrams/
 │   ├── booking_process.bpmn            ← BPMN: процесс бронирования
+│   ├── booking_process_drawio.svg      ← BPMN: визуализация (draw.io SVG)
 │   ├── er_mindspace.puml               ← ER-диаграмма (8 доменов)
 │   ├── 📁 uml/
 │   │   ├── usecase_mindspace.puml      ← Use Case
@@ -51,7 +52,8 @@
 │       ├── c4_level2_container.puml    ← Container
 │       └── c4_level3_component.puml    ← Component
 └── 📁 api/
-    └── mindspace_api.json              ← OpenAPI 3.0.3 спецификация
+    ├── mindspace_api.json              ← OpenAPI 3.0.3 спецификация
+    └── mindspace_swagger.html          ← Swagger UI (интерактивная документация)
 ```
 
 ---
@@ -92,7 +94,9 @@
 Три дорожки: Клиент · Платформа MindSpace · Психолог.  
 Покрывает: поиск, проверку слота, 15-минутный резерв, оплату, подтверждение, завершение сессии, отмену и обработку ошибок.
 
-👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn)
+![BPMN — процесс бронирования MindSpace](./diagrams/booking_process_drawio.svg)
+
+👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn) · [booking_process_drawio.svg](./diagrams/booking_process_drawio.svg)
 
 ---
 
@@ -149,7 +153,7 @@ flowchart LR
     UC_Book -.->|«include»| UC_Pay
     UC_EditProfile -.->|«include»| UC_Docs
     UC_Verify -.->|«include»| UC_Docs
-    UC_Profile <-.-|«extend»| UC_PreMsg
+    UC_Profile -.->|«extend»| UC_PreMsg
 ```
 
 👉 [diagrams/uml/usecase_mindspace.puml](./diagrams/uml/usecase_mindspace.puml)
@@ -446,6 +450,8 @@ erDiagram
 Спецификация в формате OpenAPI 3.0.3. Аутентификация: Bearer JWT.  
 **Серверы:** `https://api.mindspace.ru/v1` · `https://api-staging.mindspace.ru/v1`
 
+> 🔍 **[Открыть интерактивную документацию Swagger UI](./api/mindspace_swagger.html)** — просматривай все эндпоинты прямо в браузере
+
 <details>
 <summary>▶ Показать все эндпоинты (31)</summary>
 
@@ -485,7 +491,7 @@ erDiagram
 
 </details>
 
-👉 [api/mindspace_api.json](./api/mindspace_api.json)
+👉 [api/mindspace_api.json](./api/mindspace_api.json) · [Swagger UI](./api/mindspace_swagger.html)
 
 ---
 
