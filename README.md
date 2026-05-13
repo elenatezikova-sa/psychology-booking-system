@@ -66,6 +66,7 @@
 
 **Ключевые разделы:** бизнес-контекст · персоны (Анна / Дмитрий / Мария) · процессы To-Be · функциональные и нефункциональные требования · риски · критерии успеха MVP
 
+👉 [BRD_MindSpace.docx](./docs/BRD_MindSpace.docx) · [Открыть как PDF](./docs/BRD_MindSpace_pdf.pdf)
 👉 [docs/BRD_MindSpace.docx](./docs/BRD_MindSpace.docx)
 
 ---
@@ -85,6 +86,7 @@
 | Верификация психологов | US-16, US-21 |
 | Споры и поддержка | US-22 |
 
+👉 [UserStories_MindSpace.docx](./docs/UserStories_MindSpace.docx) · [Открыть как PDF](./docs/UserStories_MindSpace_pdf.pdf)
 👉 [docs/UserStories_MindSpace.docx](./docs/UserStories_MindSpace.docx)
 
 ---
