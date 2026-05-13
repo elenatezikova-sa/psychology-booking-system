@@ -39,20 +39,20 @@
 ├── README.md
 │
 ├── 📁 docs/
-│   ├── BRD_MindSpace_v2.docx           ← бизнес-требования
-│   └── UserStories_MindSpace_v2.docx   ← пользовательские истории (22 US)
+│   ├── BRD_MindSpace.docx           ← бизнес-требования
+│   └── UserStories_MindSpace.docx   ← пользовательские истории (22 US)
 │
 ├── 📁 diagrams/
-│   ├── booking_process_v3.bpmn         ← BPMN: процесс бронирования
+│   ├── booking_process.bpmn         ← BPMN: процесс бронирования
 │   ├── 📁 uml/
-│   │   ├── usecase_mindspace_v4.puml   ← Use Case
+│   │   ├── usecase_mindspace.puml   ← Use Case
 │   │   ├── sequence_booking.puml       ← Sequence: бронирование (happy path + отмена)
-│   │   └── statemachine.puml          ← State Machine: бронирование + верификация
+│   │   └── statemachine.puml           ← State Machine: бронирование + верификация
 │   ├── 📁 c4/
 │   │   ├── c4_level1_context.puml      ← Context: система и окружение
-│   │   ├── c4_level2_container_v3.puml ← Container: внутренние контейнеры
-│   │   └── c4_level3_component_v2.puml ← Component: компоненты Backend API
-│   └── er_mindspace_v4.puml            ← ER-диаграмма (8 доменов)
+│   │   ├── c4_level2_container.puml ← Container: внутренние контейнеры
+│   │   └── c4_level3_component.puml ← Component: компоненты Backend API
+│   └── er_mindspace.puml            ← ER-диаграмма (8 доменов)
 │
 ├── 📁 api/
 │   └── mindspace_api.json              ← OpenAPI 3.0.3 спецификация
