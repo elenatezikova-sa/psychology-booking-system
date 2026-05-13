@@ -534,4 +534,4 @@ erDiagram
 **Тезикова Елена** · Системный аналитик
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat-square&logo=linkedin)](https://linkedin.com/in/your-profile)
-[![Telegram](https://img.shields.io/badge/Telegram-Write-26A5E4?style=flat-square&logo=telegram)](https://t.me/your-username)
+[![Telegram](https://img.shields.io/badge/Telegram-Write-26A5E4?style=flat-square&logo=telegram)](https://t.me/dudkina8)
