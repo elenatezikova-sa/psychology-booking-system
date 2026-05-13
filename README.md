@@ -450,7 +450,7 @@ erDiagram
 Спецификация в формате OpenAPI 3.0.3. Аутентификация: Bearer JWT.  
 **Серверы:** `https://api.mindspace.ru/v1` · `https://api-staging.mindspace.ru/v1`
 
-> 🔍 **[Открыть интерактивную документацию Swagger UI](./api/mindspace_swagger.html)** — просматривай все эндпоинты прямо в браузере
+> 🔍 **[Открыть API в Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/elenatezikova-sa/psychology-booking-system/main/api/mindspace_api.json)
 
 <details>
 <summary>▶ Показать все эндпоинты (31)</summary>
