@@ -94,7 +94,7 @@
 Три дорожки: Клиент · Платформа MindSpace · Психолог.  
 Покрывает: поиск, проверку слота, 15-минутный резерв, оплату, подтверждение, завершение сессии, отмену и обработку ошибок.
 
-![BPMN — процесс бронирования MindSpace](./diagrams/booking_process_drawio.svg)
+![BPMN — процесс бронирования MindSpace](./diagrams/booking_process.drawio.svg) 
 
 👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn) · [booking_process_drawio.svg](./diagrams/booking_process_drawio.svg)
 
