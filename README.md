@@ -82,7 +82,7 @@
 - Функциональные и нефункциональные требования
 - Риски, ограничения, критерии успеха MVP
 
-👉 [BRD_MindSpace_v2.docx](./docs/BRD_MindSpace_v2.docx)
+👉 [BRD_MindSpace_v2.docx](./docs/BRD_MindSpace.docx)
 
 ---
 
