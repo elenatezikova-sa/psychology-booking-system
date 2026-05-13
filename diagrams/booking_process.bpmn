@@ -1,0 +1,826 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="booking_process_v3" targetNamespace="http://mindspace.ru/booking" exporter="bpmn-js-token-simulation" exporterVersion="0.39.3">
+  <collaboration id="collab_booking">
+    <participant id="pool_mindspace" name="@>F5AA 1@>=8@>20=8O  MindSpace" processRef="proc_main" />
+  </collaboration>
+  <process id="proc_main" isExecutable="false">
+    <laneSet id="laneSet_1">
+      <lane id="lane_client" name=";85=B">
+        <flowNodeRef>start</flowNodeRef>
+        <flowNodeRef>c_filter</flowNodeRef>
+        <flowNodeRef>c_browse</flowNodeRef>
+        <flowNodeRef>gw_found</flowNodeRef>
+        <flowNodeRef>c_profile</flowNodeRef>
+        <flowNodeRef>c_review_order</flowNodeRef>
+        <flowNodeRef>c_confirm</flowNodeRef>
+        <flowNodeRef>c_pay</flowNodeRef>
+        <flowNodeRef>c_got_ok</flowNodeRef>
+        <flowNodeRef>c_attend</flowNodeRef>
+        <flowNodeRef>gw_review</flowNodeRef>
+        <flowNodeRef>c_review</flowNodeRef>
+        <flowNodeRef>end_ok</flowNodeRef>
+        <flowNodeRef>c_got_error</flowNodeRef>
+        <flowNodeRef>end_err</flowNodeRef>
+      </lane>
+      <lane id="lane_platform" name=";0BD>@<0 MindSpace">
+        <flowNodeRef>p_list</flowNodeRef>
+        <flowNodeRef>p_check</flowNodeRef>
+        <flowNodeRef>gw_slot</flowNodeRef>
+        <flowNodeRef>p_show_order</flowNodeRef>
+        <flowNodeRef>p_reserve</flowNodeRef>
+        <flowNodeRef>timer_event</flowNodeRef>
+        <flowNodeRef>p_send_payment</flowNodeRef>
+        <flowNodeRef>gw_and_split</flowNodeRef>
+        <flowNodeRef>p_notif_client</flowNodeRef>
+        <flowNodeRef>p_notif_psych</flowNodeRef>
+        <flowNodeRef>p_after</flowNodeRef>
+        <flowNodeRef>p_payout_calc</flowNodeRef>
+        <flowNodeRef>p_moderate</flowNodeRef>
+        <flowNodeRef>p_publish</flowNodeRef>
+        <flowNodeRef>p_slot_busy</flowNodeRef>
+        <flowNodeRef>p_release_timeout</flowNodeRef>
+        <flowNodeRef>end_platform</flowNodeRef>
+        <flowNodeRef>end_nofit</flowNodeRef>
+        <flowNodeRef>Gateway_0smct4d</flowNodeRef>
+        <flowNodeRef>p_book</flowNodeRef>
+        <flowNodeRef>gw_paid</flowNodeRef>
+        <flowNodeRef>p_notif_error</flowNodeRef>
+        <flowNodeRef>p_release_fail</flowNodeRef>
+      </lane>
+      <lane id="lane_payment" name=";0BQ6=K9 A5@28A">
+        <flowNodeRef>pay_payout</flowNodeRef>
+        <flowNodeRef>pay_process</flowNodeRef>
+        <flowNodeRef>pay_result</flowNodeRef>
+      </lane>
+      <lane id="lane_psych" name="A8E>;>3">
+        <flowNodeRef>ps_notified</flowNodeRef>
+        <flowNodeRef>ps_conduct</flowNodeRef>
+        <flowNodeRef>ps_mark_done</flowNodeRef>
+        <flowNodeRef>ps_payout</flowNodeRef>
+        <flowNodeRef>end_psych</flowNodeRef>
+      </lane>
+      <lane id="lane_admin" name="4<8=8AB@0B>@">
+        <flowNodeRef>adm_receive</flowNodeRef>
+        <flowNodeRef>adm_check</flowNodeRef>
+        <flowNodeRef>gw_approve</flowNodeRef>
+        <flowNodeRef>adm_reject</flowNodeRef>
+        <flowNodeRef>end_adm</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="start" name="0G0;>">
+      <outgoing>e_c1</outgoing>
+    </startEvent>
+    <task id="c_filter" name="@8<5=O5B D8;LB@K ?>8A:0">
+      <incoming>e_c1</incoming>
+    </task>
+    <task id="c_browse" name="@>A<0B@8205B A?8A>: ?A8E>;>3>2">
+      <incoming>mf_list_browse</incoming>
+      <outgoing>e_c3</outgoing>
+    </task>
+    <exclusiveGateway id="gw_found" name="0HQ; ?>4E>4OI53>?">
+      <incoming>e_c3</incoming>
+      <outgoing>e_c4</outgoing>
+      <outgoing>e_c5</outgoing>
+    </exclusiveGateway>
+    <task id="c_profile" name="B:@K205B ?@>D8;L 8 2K18@05B A;>B">
+      <incoming>e_c4</incoming>
+      <incoming>mf_slot_busy_back</incoming>
+      <outgoing>mf_profile_check</outgoing>
+    </task>
+    <task id="c_review_order" name="848B 8B>3>2CN AB@0=8FC (40B0, F5=0, ?>;8B8:0)">
+      <incoming>mf_show_order</incoming>
+      <outgoing>e_c7</outgoing>
+    </task>
+    <task id="c_confirm" name=">4B25@6405B 1@>=8@>20=85">
+      <incoming>e_c7</incoming>
+      <outgoing>mf_confirm_reserve</outgoing>
+    </task>
+    <task id="c_pay" name="2>48B 40==K5 :0@BK 8 >?;0G8205B">
+      <incoming>Flow_0qm70ze</incoming>
+      <outgoing>mf_pay_to_service</outgoing>
+    </task>
+    <intermediateCatchEvent id="c_got_ok" name=">;CG05B ?>4B25@645=85 70?8A8">
+      <incoming>mf_notif_client</incoming>
+      <outgoing>e_c9</outgoing>
+      <messageEventDefinition id="msgDef_got_ok" />
+    </intermediateCatchEvent>
+    <task id="c_attend" name="@>2>48B A5AA8N A ?A8E>;>3><">
+      <incoming>e_c9</incoming>
+      <outgoing>e_c10</outgoing>
+    </task>
+    <exclusiveGateway id="gw_review" name="AB028BL >B7K2?">
+      <incoming>e_c10</incoming>
+      <outgoing>e_c11</outgoing>
+      <outgoing>e_c12_no</outgoing>
+    </exclusiveGateway>
+    <task id="c_review" name="AB02;O5B >B7K2">
+      <incoming>e_c11</incoming>
+      <outgoing>e_c13</outgoing>
+      <outgoing>mf_review_submit</outgoing>
+    </task>
+    <endEvent id="end_ok" name="@>F5AA 7025@HQ= CA?5H=>">
+      <incoming>e_c13</incoming>
+      <incoming>e_c12_no</incoming>
+    </endEvent>
+    <intermediateCatchEvent id="c_got_error" name=">;CG05B C254><;5=85 >1 >H81:5">
+      <incoming>Flow_0a3i2ad</incoming>
+      <outgoing>e_err_end</outgoing>
+      <messageEventDefinition id="msgDef_got_error" />
+    </intermediateCatchEvent>
+    <endEvent id="end_err" name="@>=8@>20=85 =5 A>AB>O;>AL">
+      <incoming>e_err_end</incoming>
+    </endEvent>
+    <task id="p_list" name=">72@0I05B >BD8;LB@>20==K9 A?8A>: ?A8E>;>3>2">
+      <incoming>e_filter_to_list</incoming>
+      <outgoing>mf_list_browse</outgoing>
+    </task>
+    <task id="p_check" name="@>25@O5B 4>ABC?=>ABL A;>B0">
+      <incoming>mf_profile_check</incoming>
+      <outgoing>e_p1</outgoing>
+    </task>
+    <exclusiveGateway id="gw_slot" name="!;>B A2>1>45=?">
+      <incoming>e_p1</incoming>
+      <outgoing>e_p2</outgoing>
+      <outgoing>e_p3</outgoing>
+    </exclusiveGateway>
+    <task id="p_show_order" name=">:07K205B 8B>3>2CN AB@0=8FC 1@>=8@>20=8O">
+      <incoming>e_p2</incoming>
+      <outgoing>mf_show_order</outgoing>
+    </task>
+    <task id="p_slot_busy" name="@54;0305B 0;LB5@=0B82=K5 A;>BK">
+      <incoming>e_p3</incoming>
+      <outgoing>mf_slot_busy_back</outgoing>
+    </task>
+    <task id="p_reserve" name=" 575@28@C5B A;>B =0 10 <8=CB">
+      <incoming>mf_confirm_reserve</incoming>
+      <outgoing>Flow_1u9dzlb</outgoing>
+    </task>
+    <intermediateCatchEvent id="timer_event" name=""09<5@ 10 <8=CB">
+      <incoming>Flow_0wid2t7</incoming>
+      <outgoing>e_timer_to_release</outgoing>
+      <timerEventDefinition id="timerDef_10min">
+        <timeDuration>PT10M</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <task id="p_send_payment" name="B?@02;O5B 70?@>A >?;0BK">
+      <incoming>mf_pay_to_service</incoming>
+      <outgoing>mf_send_to_pay</outgoing>
+    </task>
+    <parallelGateway id="gw_and_split" name="0@0;;5;L=0O >B?@02:0 C254><;5=89">
+      <incoming>e_p9</incoming>
+      <outgoing>e_p10a</outgoing>
+      <outgoing>e_p10b</outgoing>
+    </parallelGateway>
+    <task id="p_notif_client" name="B?@02;O5B :;85=BC ?>4B25@645=85">
+      <incoming>e_p10a</incoming>
+      <outgoing>mf_notif_client</outgoing>
+    </task>
+    <task id="p_notif_psych" name="#254><;O5B ?A8E>;>30 > 70?8A8">
+      <incoming>e_p10b</incoming>
+      <outgoing>mf_notif_psych</outgoing>
+    </task>
+    <task id="p_after" name="><5G05B A5AA8N :0: «@>2545=0»">
+      <incoming>mf_conduct_after</incoming>
+      <outgoing>e_p13</outgoing>
+    </task>
+    <task id="p_payout_calc" name=" 0AAG8BK205B 2K?;0BC: F5=0  15%">
+      <incoming>e_p13</incoming>
+      <outgoing>mf_payout_service</outgoing>
+    </task>
+    <task id="p_moderate" name="@8=8<05B >B7K2, >B?@02;O5B =0 <>45@0F8N">
+      <incoming>mf_review_submit</incoming>
+      <outgoing>mf_moderate_adm</outgoing>
+    </task>
+    <task id="p_publish" name="C1;8:C5B >4>1@5==K9 >B7K2">
+      <incoming>mf_approve_publish</incoming>
+      <outgoing>e_publish_end</outgoing>
+    </task>
+    <task id="p_release_timeout" name="A2>1>6405B @575@2 A;>B0 (B09<0CB)">
+      <incoming>e_timer_to_release</incoming>
+      <outgoing>e_timeout_to_notif</outgoing>
+    </task>
+    <endEvent id="end_platform" name="B7K2 >?C1;8:>20=">
+      <incoming>e_publish_end</incoming>
+    </endEvent>
+    <task id="pay_payout" name="5@52>48B 2K?;0BC ?A8E>;>3C (12 4=O)">
+      <incoming>mf_payout_service</incoming>
+      <outgoing>mf_payout_psych</outgoing>
+    </task>
+    <intermediateCatchEvent id="ps_notified" name=">;CG05B C254><;5=85 > =>2>9 70?8A8">
+      <incoming>mf_notif_psych</incoming>
+      <outgoing>e_ps1</outgoing>
+      <messageEventDefinition id="msgDef_ps_notified" />
+    </intermediateCatchEvent>
+    <task id="ps_conduct" name="@>2>48B A5AA8N A :;85=B><">
+      <incoming>e_ps1</incoming>
+      <outgoing>e_ps2</outgoing>
+    </task>
+    <task id="ps_mark_done" name="B<5G05B A5AA8N ?@>254Q==>9">
+      <incoming>e_ps2</incoming>
+      <outgoing>mf_conduct_after</outgoing>
+    </task>
+    <intermediateCatchEvent id="ps_payout" name=">;CG05B 2K?;0BC =0 AGQB">
+      <incoming>mf_payout_psych</incoming>
+      <outgoing>e_ps3</outgoing>
+      <messageEventDefinition id="msgDef_ps_payout" />
+    </intermediateCatchEvent>
+    <endEvent id="end_psych" name="A8E>;>3 7025@H8; @01>BC">
+      <incoming>e_ps3</incoming>
+    </endEvent>
+    <intermediateCatchEvent id="adm_receive" name=">;CG05B >B7K2 =0 <>45@0F8N">
+      <incoming>mf_moderate_adm</incoming>
+      <outgoing>e_adm1</outgoing>
+      <messageEventDefinition id="msgDef_adm_receive" />
+    </intermediateCatchEvent>
+    <task id="adm_check" name="@>25@O5B A>45@60=85 >B7K20">
+      <incoming>e_adm1</incoming>
+      <outgoing>e_adm2</outgoing>
+    </task>
+    <exclusiveGateway id="gw_approve" name="4>1@8BL?">
+      <incoming>e_adm2</incoming>
+      <outgoing>mf_approve_publish</outgoing>
+      <outgoing>e_adm_no</outgoing>
+    </exclusiveGateway>
+    <task id="adm_reject" name="B:;>=O5B (=0@CH5=85 ?@028;)">
+      <incoming>e_adm_no</incoming>
+      <outgoing>e_adm_end</outgoing>
+    </task>
+    <endEvent id="end_adm" name="B7K2 >B:;>=Q=">
+      <incoming>e_adm_end</incoming>
+    </endEvent>
+    <sequenceFlow id="e_c1" sourceRef="start" targetRef="c_filter" />
+    <sequenceFlow id="e_filter_to_list" sourceRef="c_filter" targetRef="p_list" />
+    <sequenceFlow id="e_c3" sourceRef="c_browse" targetRef="gw_found" />
+    <sequenceFlow id="e_c4" name="0" sourceRef="gw_found" targetRef="c_profile" />
+    <sequenceFlow id="e_c5" name="5B" sourceRef="gw_found" targetRef="end_nofit" />
+    <sequenceFlow id="e_c7" sourceRef="c_review_order" targetRef="c_confirm" />
+    <sequenceFlow id="e_c9" sourceRef="c_got_ok" targetRef="c_attend" />
+    <sequenceFlow id="e_c10" sourceRef="c_attend" targetRef="gw_review" />
+    <sequenceFlow id="e_c11" name="0" sourceRef="gw_review" targetRef="c_review" />
+    <sequenceFlow id="e_c12_no" name="5B" sourceRef="gw_review" targetRef="end_ok" />
+    <sequenceFlow id="e_c13" sourceRef="c_review" targetRef="end_ok" />
+    <sequenceFlow id="e_err_end" sourceRef="c_got_error" targetRef="end_err" />
+    <sequenceFlow id="e_p1" sourceRef="p_check" targetRef="gw_slot" />
+    <sequenceFlow id="e_p2" name="0" sourceRef="gw_slot" targetRef="p_show_order" />
+    <sequenceFlow id="e_p3" name="5B" sourceRef="gw_slot" targetRef="p_slot_busy" />
+    <sequenceFlow id="e_timer_to_release" sourceRef="timer_event" targetRef="p_release_timeout" />
+    <sequenceFlow id="e_p8a" name="0" sourceRef="gw_paid" targetRef="p_book" />
+    <sequenceFlow id="e_p8b" name="5B" sourceRef="gw_paid" targetRef="p_release_fail" />
+    <sequenceFlow id="e_p9" sourceRef="p_book" targetRef="gw_and_split" />
+    <sequenceFlow id="e_p10a" sourceRef="gw_and_split" targetRef="p_notif_client" />
+    <sequenceFlow id="e_p10b" sourceRef="gw_and_split" targetRef="p_notif_psych" />
+    <sequenceFlow id="e_p13" sourceRef="p_after" targetRef="p_payout_calc" />
+    <sequenceFlow id="e_timeout_to_notif" sourceRef="p_release_timeout" targetRef="p_notif_error" />
+    <sequenceFlow id="e_publish_end" sourceRef="p_publish" targetRef="end_platform" />
+    <sequenceFlow id="e_pay1" sourceRef="pay_process" targetRef="pay_result" />
+    <sequenceFlow id="e_ps1" sourceRef="ps_notified" targetRef="ps_conduct" />
+    <sequenceFlow id="e_ps2" sourceRef="ps_conduct" targetRef="ps_mark_done" />
+    <sequenceFlow id="e_ps3" sourceRef="ps_payout" targetRef="end_psych" />
+    <sequenceFlow id="e_adm1" sourceRef="adm_receive" targetRef="adm_check" />
+    <sequenceFlow id="e_adm2" sourceRef="adm_check" targetRef="gw_approve" />
+    <sequenceFlow id="e_adm_no" name="5B" sourceRef="gw_approve" targetRef="adm_reject" />
+    <sequenceFlow id="e_adm_end" sourceRef="adm_reject" targetRef="end_adm" />
+    <sequenceFlow id="mf_list_browse" sourceRef="p_list" targetRef="c_browse" />
+    <sequenceFlow id="mf_profile_check" sourceRef="c_profile" targetRef="p_check" />
+    <sequenceFlow id="mf_show_order" sourceRef="p_show_order" targetRef="c_review_order" />
+    <sequenceFlow id="mf_slot_busy_back" sourceRef="p_slot_busy" targetRef="c_profile" />
+    <sequenceFlow id="mf_confirm_reserve" sourceRef="c_confirm" targetRef="p_reserve" />
+    <sequenceFlow id="mf_pay_to_service" sourceRef="c_pay" targetRef="p_send_payment" />
+    <sequenceFlow id="mf_send_to_pay" sourceRef="p_send_payment" targetRef="pay_process" />
+    <sequenceFlow id="mf_notif_client" sourceRef="p_notif_client" targetRef="c_got_ok" />
+    <sequenceFlow id="mf_notif_psych" sourceRef="p_notif_psych" targetRef="ps_notified" />
+    <sequenceFlow id="mf_review_submit" sourceRef="c_review" targetRef="p_moderate" />
+    <sequenceFlow id="mf_moderate_adm" sourceRef="p_moderate" targetRef="adm_receive" />
+    <sequenceFlow id="mf_approve_publish" name="0" sourceRef="gw_approve" targetRef="p_publish" />
+    <sequenceFlow id="mf_payout_service" sourceRef="p_payout_calc" targetRef="pay_payout" />
+    <sequenceFlow id="mf_payout_psych" sourceRef="pay_payout" targetRef="ps_payout" />
+    <sequenceFlow id="mf_conduct_after" sourceRef="ps_mark_done" targetRef="p_after" />
+    <endEvent id="end_nofit" name=">4E>4OI89 ?A8E>;>3 =5 =0945=">
+      <incoming>e_c5</incoming>
+    </endEvent>
+    <inclusiveGateway id="Gateway_0smct4d">
+      <incoming>Flow_1u9dzlb</incoming>
+      <outgoing>Flow_0qm70ze</outgoing>
+      <outgoing>Flow_0wid2t7</outgoing>
+    </inclusiveGateway>
+    <sequenceFlow id="Flow_1u9dzlb" sourceRef="p_reserve" targetRef="Gateway_0smct4d" />
+    <sequenceFlow id="Flow_0qm70ze" sourceRef="Gateway_0smct4d" targetRef="c_pay" />
+    <sequenceFlow id="Flow_0wid2t7" sourceRef="Gateway_0smct4d" targetRef="timer_event" />
+    <task id="p_book" name="!>740QB 1@>=8@>20=85 (AB0BCA: >4B25@645=>)">
+      <incoming>e_p8a</incoming>
+      <outgoing>e_p9</outgoing>
+    </task>
+    <task id="pay_process" name="1@010BK205B ?;0BQ6">
+      <incoming>mf_send_to_pay</incoming>
+      <outgoing>e_pay1</outgoing>
+    </task>
+    <sequenceFlow id="Flow_0ja6pim" sourceRef="pay_result" targetRef="gw_paid" />
+    <exclusiveGateway id="gw_paid" name="?;0B0 CA?5H=0?">
+      <incoming>Flow_0ja6pim</incoming>
+      <outgoing>e_p8a</outgoing>
+      <outgoing>e_p8b</outgoing>
+    </exclusiveGateway>
+    <task id="pay_result" name=">72@0I05B @57C;LB0B (success / error)">
+      <incoming>e_pay1</incoming>
+      <outgoing>Flow_0ja6pim</outgoing>
+    </task>
+    <task id="p_notif_error" name="#254><;O5B :;85=B0 > ?@8G8=5 >B<5=K">
+      <incoming>e_timeout_to_notif</incoming>
+      <incoming>Flow_0txbnwy</incoming>
+      <outgoing>Flow_0a3i2ad</outgoing>
+    </task>
+    <sequenceFlow id="Flow_0a3i2ad" sourceRef="p_notif_error" targetRef="c_got_error" />
+    <task id="p_release_fail" name="A2>1>6405B @575@2 A;>B0 (>H81:0 >?;0BK)">
+      <incoming>e_p8b</incoming>
+      <outgoing>Flow_0txbnwy</outgoing>
+    </task>
+    <sequenceFlow id="Flow_0txbnwy" sourceRef="p_release_fail" targetRef="p_notif_error" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="collab_booking">
+      <bpmndi:BPMNShape id="shape_pool" bpmnElement="pool_mindspace" isHorizontal="true">
+        <dc:Bounds x="20" y="20" width="3200" height="1100" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_admin" bpmnElement="lane_admin" isHorizontal="true">
+        <dc:Bounds x="50" y="940" width="3170" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_psych" bpmnElement="lane_psych" isHorizontal="true">
+        <dc:Bounds x="50" y="760" width="3170" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_payment" bpmnElement="lane_payment" isHorizontal="true">
+        <dc:Bounds x="50" y="580" width="3170" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_platform" bpmnElement="lane_platform" isHorizontal="true">
+        <dc:Bounds x="50" y="240" width="3170" height="340" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_lane_client" bpmnElement="lane_client" isHorizontal="true">
+        <dc:Bounds x="50" y="20" width="3170" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_start" bpmnElement="start">
+        <dc:Bounds x="90" y="105" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="78" y="146" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_filter" bpmnElement="c_filter">
+        <dc:Bounds x="170" y="93" width="100" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_browse" bpmnElement="c_browse">
+        <dc:Bounds x="320" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_found" bpmnElement="gw_found" isMarkerVisible="true">
+        <dc:Bounds x="490" y="98" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="478" y="60.5" width="74" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_profile" bpmnElement="c_profile">
+        <dc:Bounds x="590" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_review_order" bpmnElement="c_review_order">
+        <dc:Bounds x="840" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_confirm" bpmnElement="c_confirm">
+        <dc:Bounds x="1010" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_pay" bpmnElement="c_pay">
+        <dc:Bounds x="1310" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_got_ok" bpmnElement="c_got_ok">
+        <dc:Bounds x="1820" y="103" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1800" y="144" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_attend" bpmnElement="c_attend">
+        <dc:Bounds x="1920" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_review" bpmnElement="gw_review" isMarkerVisible="true">
+        <dc:Bounds x="2100" y="98" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2080" y="153" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_review" bpmnElement="c_review">
+        <dc:Bounds x="2210" y="93" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_ok" bpmnElement="end_ok">
+        <dc:Bounds x="2394" y="105" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2372" y="146" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_c_got_error" bpmnElement="c_got_error">
+        <dc:Bounds x="1620" y="103" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1596" y="53" width="84" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_err" bpmnElement="end_err">
+        <dc:Bounds x="1720" y="105" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1698" y="146" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_list" bpmnElement="p_list">
+        <dc:Bounds x="320" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_check" bpmnElement="p_check">
+        <dc:Bounds x="590" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_slot" bpmnElement="gw_slot" isMarkerVisible="true">
+        <dc:Bounds x="760" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="743" y="311" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_show_order" bpmnElement="p_show_order">
+        <dc:Bounds x="840" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_slot_busy" bpmnElement="p_slot_busy">
+        <dc:Bounds x="730" y="450" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_reserve" bpmnElement="p_reserve">
+        <dc:Bounds x="1010" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_timer_event" bpmnElement="timer_event">
+        <dc:Bounds x="1192" y="450" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1172" y="491" width="76" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_send_payment" bpmnElement="p_send_payment">
+        <dc:Bounds x="1430" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_and_split" bpmnElement="gw_and_split">
+        <dc:Bounds x="1885" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1855" y="390" width="110" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_notif_client" bpmnElement="p_notif_client">
+        <dc:Bounds x="1990" y="300" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_notif_psych" bpmnElement="p_notif_psych">
+        <dc:Bounds x="1990" y="390" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_after" bpmnElement="p_after">
+        <dc:Bounds x="2160" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_payout_calc" bpmnElement="p_payout_calc">
+        <dc:Bounds x="2340" y="330" width="130" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_moderate" bpmnElement="p_moderate">
+        <dc:Bounds x="2540" y="330" width="130" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_publish" bpmnElement="p_publish">
+        <dc:Bounds x="2700" y="330" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_release_timeout" bpmnElement="p_release_timeout">
+        <dc:Bounds x="1310" y="450" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_platform" bpmnElement="end_platform">
+        <dc:Bounds x="2874" y="345" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_pay_payout" bpmnElement="pay_payout">
+        <dc:Bounds x="2340" y="640" width="130" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ps_notified" bpmnElement="ps_notified">
+        <dc:Bounds x="1990" y="813" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1970" y="854" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ps_conduct" bpmnElement="ps_conduct">
+        <dc:Bounds x="2090" y="800" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ps_mark_done" bpmnElement="ps_mark_done">
+        <dc:Bounds x="2260" y="800" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_ps_payout" bpmnElement="ps_payout">
+        <dc:Bounds x="2390" y="813" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2370" y="854" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_psych" bpmnElement="end_psych">
+        <dc:Bounds x="2490" y="813" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_adm_receive" bpmnElement="adm_receive">
+        <dc:Bounds x="2540" y="990" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2520" y="1031" width="76" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_adm_check" bpmnElement="adm_check">
+        <dc:Bounds x="2630" y="978" width="130" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_approve" bpmnElement="gw_approve" isMarkerVisible="true">
+        <dc:Bounds x="2815" y="983" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2800" y="1038" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_adm_reject" bpmnElement="adm_reject">
+        <dc:Bounds x="2920" y="978" width="130" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_adm" bpmnElement="end_adm">
+        <dc:Bounds x="3104" y="990" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_end_nofit" bpmnElement="end_nofit">
+        <dc:Bounds x="497" y="262" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="482" y="303" width="66" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1b1gl6i_di" bpmnElement="Gateway_0smct4d">
+        <dc:Bounds x="1165" y="335" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_book" bpmnElement="p_book">
+        <dc:Bounds x="1720" y="300" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_pay_process" bpmnElement="pay_process">
+        <dc:Bounds x="1320" y="640" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_gw_paid" bpmnElement="gw_paid" isMarkerVisible="true">
+        <dc:Bounds x="1625" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1624" y="297.5" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_pay_result" bpmnElement="pay_result">
+        <dc:Bounds x="1526" y="640" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_notif_error" bpmnElement="p_notif_error">
+        <dc:Bounds x="1605" y="500" width="130" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="shape_p_release_fail" bpmnElement="p_release_fail">
+        <dc:Bounds x="1720" y="410" width="120" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="edge_e_c1" bpmnElement="e_c1">
+        <di:waypoint x="126" y="123" />
+        <di:waypoint x="170" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_filter_to_list" bpmnElement="e_filter_to_list">
+        <di:waypoint x="220" y="153" />
+        <di:waypoint x="220" y="360" />
+        <di:waypoint x="320" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c3" bpmnElement="e_c3">
+        <di:waypoint x="440" y="123" />
+        <di:waypoint x="490" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c4" bpmnElement="e_c4">
+        <di:waypoint x="540" y="123" />
+        <di:waypoint x="590" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c5" bpmnElement="e_c5">
+        <di:waypoint x="515" y="148" />
+        <di:waypoint x="515" y="205" />
+        <di:waypoint x="497" y="205" />
+        <di:waypoint x="497" y="262" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="502" y="206" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c7" bpmnElement="e_c7">
+        <di:waypoint x="960" y="123" />
+        <di:waypoint x="1010" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c9" bpmnElement="e_c9">
+        <di:waypoint x="1856" y="121" />
+        <di:waypoint x="1920" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c10" bpmnElement="e_c10">
+        <di:waypoint x="2040" y="123" />
+        <di:waypoint x="2100" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c11" bpmnElement="e_c11">
+        <di:waypoint x="2150" y="123" />
+        <di:waypoint x="2210" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c12_no" bpmnElement="e_c12_no">
+        <di:waypoint x="2125" y="98" />
+        <di:waypoint x="2125" y="70" />
+        <di:waypoint x="2412" y="70" />
+        <di:waypoint x="2412" y="105" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_c13" bpmnElement="e_c13">
+        <di:waypoint x="2330" y="123" />
+        <di:waypoint x="2394" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_err_end" bpmnElement="e_err_end">
+        <di:waypoint x="1656" y="121" />
+        <di:waypoint x="1720" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p1" bpmnElement="e_p1">
+        <di:waypoint x="710" y="360" />
+        <di:waypoint x="760" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p2" bpmnElement="e_p2">
+        <di:waypoint x="810" y="360" />
+        <di:waypoint x="840" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p3" bpmnElement="e_p3">
+        <di:waypoint x="785" y="385" />
+        <di:waypoint x="785" y="418" />
+        <di:waypoint x="790" y="418" />
+        <di:waypoint x="790" y="450" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="777" y="396" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_timer_to_release" bpmnElement="e_timer_to_release">
+        <di:waypoint x="1228" y="470" />
+        <di:waypoint x="1310" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p8a" bpmnElement="e_p8a">
+        <di:waypoint x="1675" y="360" />
+        <di:waypoint x="1698" y="360" />
+        <di:waypoint x="1698" y="330" />
+        <di:waypoint x="1720" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1675" y="335" width="14" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p8b" bpmnElement="e_p8b">
+        <di:waypoint x="1650" y="385" />
+        <di:waypoint x="1650" y="440" />
+        <di:waypoint x="1720" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1655" y="404" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p9" bpmnElement="e_p9">
+        <di:waypoint x="1840" y="330" />
+        <di:waypoint x="1863" y="330" />
+        <di:waypoint x="1863" y="360" />
+        <di:waypoint x="1885" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p10a" bpmnElement="e_p10a">
+        <di:waypoint x="1935" y="335" />
+        <di:waypoint x="1935" y="330" />
+        <di:waypoint x="1990" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p10b" bpmnElement="e_p10b">
+        <di:waypoint x="1935" y="385" />
+        <di:waypoint x="1935" y="420" />
+        <di:waypoint x="1990" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_p13" bpmnElement="e_p13">
+        <di:waypoint x="2280" y="360" />
+        <di:waypoint x="2340" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_timeout_to_notif" bpmnElement="e_timeout_to_notif">
+        <di:waypoint x="1370" y="510" />
+        <di:waypoint x="1370" y="530" />
+        <di:waypoint x="1605" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_publish_end" bpmnElement="e_publish_end">
+        <di:waypoint x="2820" y="360" />
+        <di:waypoint x="2874" y="363" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_pay1" bpmnElement="e_pay1">
+        <di:waypoint x="1440" y="670" />
+        <di:waypoint x="1526" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_ps1" bpmnElement="e_ps1">
+        <di:waypoint x="2026" y="831" />
+        <di:waypoint x="2090" y="830" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_ps2" bpmnElement="e_ps2">
+        <di:waypoint x="2210" y="830" />
+        <di:waypoint x="2260" y="830" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_ps3" bpmnElement="e_ps3">
+        <di:waypoint x="2426" y="831" />
+        <di:waypoint x="2490" y="831" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_adm1" bpmnElement="e_adm1">
+        <di:waypoint x="2576" y="1008" />
+        <di:waypoint x="2630" y="1008" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_adm2" bpmnElement="e_adm2">
+        <di:waypoint x="2760" y="1008" />
+        <di:waypoint x="2815" y="1008" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_adm_no" bpmnElement="e_adm_no">
+        <di:waypoint x="2865" y="1008" />
+        <di:waypoint x="2920" y="1008" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_e_adm_end" bpmnElement="e_adm_end">
+        <di:waypoint x="3050" y="1008" />
+        <di:waypoint x="3104" y="1008" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_list_browse" bpmnElement="mf_list_browse">
+        <di:waypoint x="380" y="330" />
+        <di:waypoint x="380" y="153" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_profile_check" bpmnElement="mf_profile_check">
+        <di:waypoint x="650" y="153" />
+        <di:waypoint x="650" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_show_order" bpmnElement="mf_show_order">
+        <di:waypoint x="900" y="330" />
+        <di:waypoint x="900" y="153" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_slot_busy_back" bpmnElement="mf_slot_busy_back">
+        <di:waypoint x="730" y="480" />
+        <di:waypoint x="600" y="480" />
+        <di:waypoint x="600" y="153" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_confirm_reserve" bpmnElement="mf_confirm_reserve">
+        <di:waypoint x="1070" y="153" />
+        <di:waypoint x="1070" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_pay_to_service" bpmnElement="mf_pay_to_service">
+        <di:waypoint x="1430" y="123" />
+        <di:waypoint x="1490" y="123" />
+        <di:waypoint x="1490" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_send_to_pay" bpmnElement="mf_send_to_pay">
+        <di:waypoint x="1490" y="390" />
+        <di:waypoint x="1490" y="515" />
+        <di:waypoint x="1380" y="515" />
+        <di:waypoint x="1380" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_notif_client" bpmnElement="mf_notif_client">
+        <di:waypoint x="2050" y="300" />
+        <di:waypoint x="2050" y="200" />
+        <di:waypoint x="1838" y="200" />
+        <di:waypoint x="1838" y="139" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_notif_psych" bpmnElement="mf_notif_psych">
+        <di:waypoint x="2050" y="450" />
+        <di:waypoint x="2050" y="600" />
+        <di:waypoint x="2008" y="600" />
+        <di:waypoint x="2008" y="813" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_review_submit" bpmnElement="mf_review_submit">
+        <di:waypoint x="2270" y="153" />
+        <di:waypoint x="2270" y="260" />
+        <di:waypoint x="2605" y="260" />
+        <di:waypoint x="2605" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_moderate_adm" bpmnElement="mf_moderate_adm">
+        <di:waypoint x="2605" y="390" />
+        <di:waypoint x="2605" y="700" />
+        <di:waypoint x="2558" y="700" />
+        <di:waypoint x="2558" y="990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_approve_publish" bpmnElement="mf_approve_publish">
+        <di:waypoint x="2840" y="983" />
+        <di:waypoint x="2840" y="900" />
+        <di:waypoint x="2760" y="900" />
+        <di:waypoint x="2760" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_payout_service" bpmnElement="mf_payout_service">
+        <di:waypoint x="2405" y="390" />
+        <di:waypoint x="2405" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_payout_psych" bpmnElement="mf_payout_psych">
+        <di:waypoint x="2408" y="700" />
+        <di:waypoint x="2408" y="813" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="edge_mf_conduct_after" bpmnElement="mf_conduct_after">
+        <di:waypoint x="2320" y="800" />
+        <di:waypoint x="2320" y="700" />
+        <di:waypoint x="2220" y="700" />
+        <di:waypoint x="2220" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u9dzlb_di" bpmnElement="Flow_1u9dzlb">
+        <di:waypoint x="1130" y="360" />
+        <di:waypoint x="1165" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qm70ze_di" bpmnElement="Flow_0qm70ze">
+        <di:waypoint x="1190" y="335" />
+        <di:waypoint x="1190" y="123" />
+        <di:waypoint x="1310" y="123" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wid2t7_di" bpmnElement="Flow_0wid2t7">
+        <di:waypoint x="1190" y="385" />
+        <di:waypoint x="1190" y="418" />
+        <di:waypoint x="1210" y="418" />
+        <di:waypoint x="1210" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ja6pim_di" bpmnElement="Flow_0ja6pim">
+        <di:waypoint x="1585" y="640" />
+        <di:waypoint x="1580" y="360" />
+        <di:waypoint x="1625" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0a3i2ad_di" bpmnElement="Flow_0a3i2ad">
+        <di:waypoint x="1670" y="500" />
+        <di:waypoint x="1670" y="320" />
+        <di:waypoint x="1638" y="320" />
+        <di:waypoint x="1638" y="139" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0txbnwy_di" bpmnElement="Flow_0txbnwy">
+        <di:waypoint x="1780" y="470" />
+        <di:waypoint x="1780" y="485" />
+        <di:waypoint x="1725" y="485" />
+        <di:waypoint x="1725" y="500" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

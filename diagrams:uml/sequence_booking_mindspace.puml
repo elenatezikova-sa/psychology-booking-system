@@ -1,0 +1,118 @@
+@startuml Sequence_Booking_MindSpace
+
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+skinparam participant {
+  BackgroundColor #EEF4FB
+  BorderColor #4A90D9
+  FontColor #1A1A1A
+}
+
+skinparam actor {
+  BackgroundColor #5BAD6F
+  BorderColor #3D8B57
+  FontColor #1A1A1A
+}
+
+skinparam sequence {
+  ArrowColor #4A90D9
+  LifeLineBorderColor #9E9E9E
+  GroupBackgroundColor #FFF8E7
+  GroupBorderColor #E0C060
+  GroupFontColor #1A1A1A
+  DividerBackgroundColor #F0F0F0
+}
+
+title <size:16><b>Sequence Diagram — Бронирование сессии</b></size>\n<size:11>Happy Path + Отмена клиентом · MindSpace MVP</size>
+
+legend top right
+  |= Цвет |= Значение |
+  |<#5BAD6F> Зелёный | Пользователь |
+  |<#EEF4FB> Голубой | Web App (SPA) |
+  |<#4A90D9> Синий | Backend API |
+  |<#3B5998> Тёмно-синий | База данных |
+  |<#9E9E9E> Серый | Внешние системы |
+  | [alt] | Альтернативный сценарий |
+end legend
+
+actor "Клиент" as Client #5BAD6F
+participant "Web App\n(SPA)" as SPA #EEF4FB
+participant "Backend API" as API #4A90D9
+participant "PostgreSQL" as DB #3B5998
+participant "Платёжный\nпровайдер" as Pay #9E9E9E
+participant "Notification\nService" as Notify #9E9E9E
+
+== Поиск и выбор ==
+
+Client -> SPA : Ввод фильтров\n(специализация, цена, слот)
+SPA -> API : GET /search?filters=...
+API -> DB : SELECT психологи\nWHERE verified + фильтры
+DB --> API : Список психологов
+API --> SPA : Психологи + слоты
+SPA --> Client : Карточки психологов
+
+Client -> SPA : Выбрать слот
+SPA -> API : POST /bookings\n{slot_id, psychologist_id}
+API -> DB : UPDATE slot → reserved\nINSERT booking (pending_payment)\nreservation_expires_at = now+15min
+DB --> API : booking_id
+API --> SPA : booking_id, таймер 15 мин
+SPA --> Client : Экран оплаты\n⏱ 15 минут
+
+== Оплата ==
+
+Client -> SPA : Нажать «Оплатить»
+SPA -> API : POST /payments\n{booking_id, idempotency_key}
+API -> Pay : POST /charge\n{amount, idempotency_key}
+Pay --> API : payment_id, статус: completed\n+ ссылка на фискальный чек (54-ФЗ)
+API -> DB : UPDATE payment → completed\nUPDATE booking → confirmed\nUPDATE slot → booked
+DB --> API : OK
+API -> Notify : Событие: booking_confirmed\n→ клиент + психолог
+Notify --> Client : Email + Telegram:\n«Бронь подтверждена»
+API --> SPA : Успех
+SPA --> Client : Экран «Сессия забронирована»
+
+== Напоминания (Job Scheduler) ==
+
+...24 часа и 1 час до сессии...
+Notify --> Client : Напоминание о сессии
+Notify --> Client : Напоминание о сессии (1ч)
+
+== Завершение сессии ==
+
+note over API, DB : Сессия проводится вне платформы (Zoom / Meet)
+API -> DB : UPDATE booking → completed
+API -> Pay : POST /payout\n{psychologist_id, net_amount}
+Pay --> API : payout_id: processing
+API -> Notify : Событие: payout_done\n→ психолог
+Notify --> Client : Email: «Деньги отправлены»
+
+== [alt] Отмена клиентом ==
+
+group Отмена за 24+ ч → возврат 100%
+  Client -> SPA : Отменить бронь
+  SPA -> API : DELETE /bookings/{id}
+  API -> DB : Проверить starts_at - now > 24h
+  DB --> API : ✓ ранняя отмена
+  API -> Pay : POST /refund\n{payment_id, amount=100%}
+  Pay --> API : refund: completed
+  API -> DB : UPDATE booking → cancelled\nUPDATE slot → available
+  API -> Notify : Событие: booking_cancelled
+  Notify --> Client : Email: «Возврат 100%»
+end
+
+group Отмена менее чем за 24 ч → возврат 50%
+  Client -> SPA : Отменить бронь
+  SPA -> API : DELETE /bookings/{id}
+  API -> DB : Проверить starts_at - now < 24h
+  DB --> API : ✓ поздняя отмена
+  API -> Pay : POST /refund\n{payment_id, amount=50%}
+  Pay --> API : refund: completed
+  API -> DB : UPDATE booking → cancelled
+  API -> Notify : Уведомление клиенту\n+ психологу (50% выплата)
+end
+
+@enduml

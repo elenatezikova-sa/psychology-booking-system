@@ -1,0 +1,329 @@
+@startuml MindSpace_ER
+
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam classArrowColor #555555
+skinparam classBorderThickness 1.5
+skinparam shadowing false
+skinparam padding 4
+skinparam nodesep 40
+skinparam ranksep 50
+
+title <size:18><b>ER Diagram — MindSpace</b></size>
+
+legend top right
+  <b>Домены</b>
+  |<#D0E8FF>| Users & Profiles |
+  |<#D6F0D6>| Verification |
+  |<#FFF3CD>| Schedule & Booking |
+  |<#FFE0E0>| Payments & Payouts |
+  |<#F3E5F5>| Reviews |
+  |<#E0F7FA>| Notifications |
+  |<#FBE9E7>| Messages & Disputes |
+  |<#F5F5F5>| Справочники |
+
+  <b>Стрелки (Crow's Foot)</b>
+  |= Символ |= Значение |
+  | \|\| | ровно одна (обяз.) |
+  | o\| | ноль или одна |
+  | o{ | ноль или много |
+  | \|{ | одна или много |
+
+  <b>Поля</b>
+  |= |= |
+  | <u>id</u> | PRIMARY KEY |
+  | <i>x_id</i> | FOREIGN KEY |
+  | • поле | важное бизнес-поле |
+end legend
+
+' === Users & Profiles ===
+
+class users #D0E8FF {
+  <u>id</u> : UUID
+  --
+  • email : VARCHAR UNIQUE
+  phone : VARCHAR
+  • password_hash : VARCHAR
+  • role : ENUM(client,psychologist,admin,support)
+  • email_confirmed : BOOL
+  • is_active : BOOL
+  is_blocked : BOOL
+  deleted_at : TIMESTAMP
+  created_at : TIMESTAMP
+}
+
+class client_profiles #D0E8FF {
+  <u>id</u> : UUID
+  --
+  <i>user_id</i> : UUID
+  • display_name : VARCHAR
+  about_request : TEXT
+  preferred_format : ENUM(online,offline,any)
+  timezone : VARCHAR
+  notification_email : BOOL
+  notification_telegram : BOOL
+  telegram_chat_id : VARCHAR
+}
+
+class psychologist_profiles #D0E8FF {
+  <u>id</u> : UUID
+  --
+  <i>user_id</i> : UUID
+  • full_name : VARCHAR
+  photo_url : VARCHAR
+  bio : TEXT
+  experience_years : INT
+  • session_duration_min : ENUM(50,90)
+  • price_rub : DECIMAL
+  • format : ENUM(online,offline,both)
+  city : VARCHAR
+  • verification_status : ENUM(pending,verified,rejected)
+  • is_published : BOOL
+  avg_rating : DECIMAL
+  total_sessions : INT
+}
+
+' === Справочники ===
+
+class specializations #F5F5F5 {
+  <u>id</u> : UUID
+  --
+  • name : VARCHAR
+}
+
+class therapy_methods #F5F5F5 {
+  <u>id</u> : UUID
+  --
+  • name : VARCHAR
+}
+
+class psychologist_specializations #F5F5F5 {
+  <u>id</u> : UUID
+  --
+  <i>psychologist_id</i> : UUID
+  <i>specialization_id</i> : UUID
+}
+
+class psychologist_methods #F5F5F5 {
+  <u>id</u> : UUID
+  --
+  <i>psychologist_id</i> : UUID
+  <i>method_id</i> : UUID
+}
+
+' === Verification ===
+
+class verification_requests #D6F0D6 {
+  <u>id</u> : UUID
+  --
+  <i>psychologist_id</i> : UUID
+  <i>reviewed_by</i> : UUID
+  • status : ENUM(pending,approved,rejected)
+  reject_reason : TEXT
+  attempt_number : INT
+  • submitted_at : TIMESTAMP
+  reviewed_at : TIMESTAMP
+}
+
+class verification_documents #D6F0D6 {
+  <u>id</u> : UUID
+  --
+  <i>psychologist_id</i> : UUID
+  <i>verification_request_id</i> : UUID
+  • doc_type : ENUM(diploma,passport,tax_status,certificate)
+  • file_url : VARCHAR
+  mime_type : VARCHAR
+  • is_required : BOOL
+  uploaded_at : TIMESTAMP
+}
+
+class verification_log #D6F0D6 {
+  <u>id</u> : UUID
+  --
+  <i>verification_request_id</i> : UUID
+  <i>admin_user_id</i> : UUID
+  • action : VARCHAR
+  comment : TEXT
+  created_at : TIMESTAMP
+}
+
+' === Schedule & Booking ===
+
+class schedule_slots #FFF3CD {
+  <u>id</u> : UUID
+  --
+  <i>psychologist_id</i> : UUID
+  • starts_at : TIMESTAMP
+  • ends_at : TIMESTAMP
+  • status : ENUM(available,reserved,booked,blocked)
+  • format : ENUM(online,offline)
+}
+
+class bookings #FFF3CD {
+  <u>id</u> : UUID
+  --
+  <i>client_id</i> : UUID
+  <i>psychologist_id</i> : UUID
+  <i>slot_id</i> : UUID
+  • format : ENUM(online,offline)
+  • price_rub : DECIMAL
+  • commission_pct : DECIMAL
+  • status : ENUM(pending_payment,confirmed,completed,cancelled,no_show,disputed)
+  cancelled_by : ENUM(client,psychologist,admin)
+  • reservation_expires_at : TIMESTAMP
+  created_at : TIMESTAMP
+}
+
+' === Payments & Payouts ===
+
+class payments #FFE0E0 {
+  <u>id</u> : UUID
+  --
+  <i>booking_id</i> : UUID
+  <i>client_id</i> : UUID
+  • amount_rub : DECIMAL
+  • status : ENUM(pending,completed,refunded,failed)
+  provider_payment_id : VARCHAR
+  • fiscal_receipt_url : VARCHAR
+  • idempotency_key : VARCHAR UNIQUE
+  paid_at : TIMESTAMP
+}
+
+class refunds #FFE0E0 {
+  <u>id</u> : UUID
+  --
+  <i>payment_id</i> : UUID
+  <i>booking_id</i> : UUID
+  • amount_rub : DECIMAL
+  • refund_pct : DECIMAL
+  • reason : ENUM(cancel_early,cancel_late,psychologist_cancel,dispute)
+  • status : ENUM(pending,completed,failed)
+  fiscal_receipt_url : VARCHAR
+  processed_at : TIMESTAMP
+}
+
+class payouts #FFE0E0 {
+  <u>id</u> : UUID
+  --
+  <i>psychologist_id</i> : UUID
+  <i>booking_id</i> : UUID
+  • gross_amount_rub : DECIMAL
+  • commission_amount_rub : DECIMAL
+  • net_amount_rub : DECIMAL
+  • status : ENUM(pending,processing,completed,failed)
+  • scheduled_at : TIMESTAMP
+  processed_at : TIMESTAMP
+}
+
+' === Reviews ===
+
+class reviews #F3E5F5 {
+  <u>id</u> : UUID
+  --
+  <i>booking_id</i> : UUID
+  <i>client_id</i> : UUID
+  <i>psychologist_id</i> : UUID
+  • rating : SMALLINT
+  text : TEXT
+  • moderation_status : ENUM(pending,approved,rejected)
+  <i>moderated_by</i> : UUID
+  published_at : TIMESTAMP
+}
+
+class review_replies #F3E5F5 {
+  <u>id</u> : UUID
+  --
+  <i>review_id</i> : UUID
+  <i>psychologist_id</i> : UUID
+  text : TEXT
+  • moderation_status : ENUM(pending,approved,rejected)
+  <i>moderated_by</i> : UUID
+  published_at : TIMESTAMP
+}
+
+' === Notifications ===
+
+class notifications #E0F7FA {
+  <u>id</u> : UUID
+  --
+  <i>recipient_user_id</i> : UUID
+  <i>booking_id</i> : UUID
+  • type : ENUM(booking_confirmed,booking_cancelled,reminder_24h,reminder_1h,payout_done,dispute_update)
+  • channel : ENUM(email,telegram)
+  • status : ENUM(pending,sent,failed)
+  scheduled_at : TIMESTAMP
+  sent_at : TIMESTAMP
+}
+
+' === Messages & Disputes ===
+
+class pre_booking_messages #FBE9E7 {
+  <u>id</u> : UUID
+  --
+  <i>client_id</i> : UUID
+  <i>psychologist_id</i> : UUID
+  • sender_role : ENUM(client,psychologist)
+  • text : TEXT
+  is_read : BOOL
+  created_at : TIMESTAMP
+}
+
+class disputes #FBE9E7 {
+  <u>id</u> : UUID
+  --
+  <i>booking_id</i> : UUID
+  <i>initiated_by</i> : UUID
+  <i>assigned_to</i> : UUID
+  reason : TEXT
+  • status : ENUM(open,in_review,resolved,closed)
+  resolution : TEXT
+  • opened_at : TIMESTAMP
+  resolved_at : TIMESTAMP
+}
+
+' === Связи ===
+
+users ||--o| client_profiles : "профиль клиента"
+users ||--o| psychologist_profiles : "профиль психолога"
+
+psychologist_profiles ||--o{ psychologist_specializations : "содержит"
+specializations ||--o{ psychologist_specializations : "используется в"
+psychologist_profiles ||--o{ psychologist_methods : "использует"
+therapy_methods ||--o{ psychologist_methods : "используется в"
+
+psychologist_profiles ||--o{ verification_requests : "подаёт заявку"
+users ||--o{ verification_requests : "проверяет"
+verification_requests ||--o{ verification_documents : "включает"
+psychologist_profiles ||--o{ verification_documents : "владеет"
+verification_requests ||--o{ verification_log : "логируется"
+users ||--o{ verification_log : "действие администратора"
+
+psychologist_profiles ||--o{ schedule_slots : "владеет"
+client_profiles ||--o{ bookings : "создаёт"
+psychologist_profiles ||--o{ bookings : "получает"
+schedule_slots ||--o| bookings : "резервируется"
+
+bookings ||--o| payments : "оплачивается"
+payments ||--o{ refunds : "возвращается"
+bookings ||--o{ refunds : "порождает"
+psychologist_profiles ||--o{ payouts : "получает"
+bookings ||--o| payouts : "генерирует"
+
+bookings ||--o| reviews : "содержит"
+client_profiles ||--o{ reviews : "пишет"
+psychologist_profiles ||--o{ reviews : "получает"
+users ||--o{ reviews : "модерирует"
+reviews ||--o| review_replies : "отвечает"
+psychologist_profiles ||--o{ review_replies : "пишет"
+
+users ||--o{ notifications : "получает"
+bookings ||--o{ notifications : "порождает"
+
+client_profiles ||--o{ pre_booking_messages : "отправляет"
+psychologist_profiles ||--o{ pre_booking_messages : "получает"
+
+bookings ||--o| disputes : "эскалируется"
+users ||--o{ disputes : "инициирует / обрабатывает"
+
+@enduml

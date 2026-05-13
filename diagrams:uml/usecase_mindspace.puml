@@ -1,0 +1,104 @@
+@startuml UseCase_MindSpace_v4
+
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam shadowing false
+
+skinparam rectangle {
+  RoundCorner 10
+}
+
+skinparam actor {
+  BackgroundColor #5BAD6F
+  BorderColor #3D8B57
+  FontColor #1A1A1A
+}
+
+skinparam usecase {
+  BackgroundColor #EEF4FB
+  BorderColor #4A90D9
+  FontColor #1A1A1A
+}
+
+left to right direction
+
+title <size:18><b>Use Case Diagram — MindSpace</b></size>\n<size:12>Маркетплейс психологов · MVP</size>
+
+' === АКТОРЫ ===
+actor "Клиент" as Client
+actor "Психолог" as Psych
+actor "Администратор" as Admin
+
+' === USE CASES ===
+package "**MindSpace**" #EEF4FB {
+
+  rectangle "Аккаунт" #F5F5F5 {
+    usecase "Зарегистрироваться" as UC_Reg
+    usecase "Войти в систему" as UC_Login
+  }
+
+  rectangle "Поиск и запись" #FFF8E7 {
+    usecase "Найти психолога\nпо фильтрам" as UC_Search
+    usecase "Просмотреть профиль\nпсихолога" as UC_Profile
+    usecase "Написать психологу\nдо записи" as UC_PreMsg
+    usecase "Забронировать сессию" as UC_Book
+    usecase "Оплатить сессию" as UC_Pay
+    usecase "Отменить бронь" as UC_Cancel
+  }
+
+  rectangle "После сессии" #F0FFF0 {
+    usecase "Оставить отзыв" as UC_Review
+    usecase "Открыть диспут" as UC_Dispute
+  }
+
+  rectangle "Практика психолога" #FFF0F5 {
+    usecase "Управлять расписанием" as UC_Schedule
+    usecase "Заполнить профиль и цены" as UC_EditProfile
+    usecase "Загрузить документы" as UC_Docs
+    usecase "Ответить на отзыв" as UC_Reply
+    usecase "Отменить сессию" as UC_PsychCancel
+  }
+
+  rectangle "Администрирование" #FDECEA {
+    usecase "Верифицировать психолога" as UC_Verify
+    usecase "Модерировать отзывы" as UC_ModReview
+    usecase "Заблокировать пользователя" as UC_Block
+    usecase "Разрешить диспут" as UC_ResolveDisp
+  }
+
+}
+
+' === АССОЦИАЦИИ ===
+Client -- UC_Reg
+Client -- UC_Login
+Client -- UC_Search
+Client -- UC_Profile
+Client -- UC_Book
+Client -- UC_Cancel
+Client -- UC_Review
+Client -- UC_Dispute
+Client -- UC_PreMsg
+
+Psych -- UC_Reg
+Psych -- UC_Login
+Psych -- UC_Schedule
+Psych -- UC_EditProfile
+Psych -- UC_Docs
+Psych -- UC_Reply
+Psych -- UC_PsychCancel
+
+Admin -- UC_Verify
+Admin -- UC_ModReview
+Admin -- UC_Block
+Admin -- UC_ResolveDisp
+
+' === INCLUDE: базовый ..> включаемый ===
+UC_Book ..> UC_Pay : <<include>>
+UC_EditProfile ..> UC_Docs : <<include>>
+UC_Verify ..> UC_Docs : <<include>>
+
+' === EXTEND: расширяющий ..> базовый ===
+UC_PreMsg <.. UC_Profile : <<extend>>
+
+@enduml

@@ -1,0 +1,78 @@
+@startuml C4_Level2_Container
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam rectangle {
+  RoundCorner 10
+}
+
+title <size:18><b>C4 — Уровень 2: Container Diagram</b></size>\n<size:12>MindSpace — внутренние контейнеры платформы</size>
+
+legend top right
+  |= Элемент |= Значение |
+  |<#5BAD6F> Зелёный | Пользователи |
+  |<#4A90D9> Синий | Контейнеры: приложения и сервисы |
+  |<#3B5998> Тёмно-синий | Контейнеры: хранилища данных |
+  |<#9E9E9E> Серый | Внешние системы |
+  |  ——>  | Синхронный вызов |
+  | ..>   | Асинхронный / событие |
+end legend
+
+' === ПОЛЬЗОВАТЕЛИ ===
+rectangle "**Клиент**" <<Person>> #5BAD6F
+rectangle "**Психолог**" <<Person>> #5BAD6F
+rectangle "**Администратор**" <<Person>> #5BAD6F
+
+' === ВНЕШНИЕ ===
+rectangle "**Платёжный\nпровайдер**\n[External]" <<External>> #9E9E9E
+rectangle "**Email-сервис**\n[External]" <<External>> #9E9E9E
+rectangle "**Telegram Bot API**\n[External]" <<External>> #9E9E9E
+
+' === КОНТЕЙНЕРЫ MINDSPACE ===
+package "**MindSpace Platform**" #EEF4FB {
+
+  ' --- ПРИЛОЖЕНИЯ (синие) ---
+  rectangle "**Web App (SPA)**\n[Container: React / Vue]\n\nUI для клиента, психолога\nи администратора.\nОтдаётся CDN / Nginx." <<Container>> #4A90D9
+
+  rectangle "**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." <<Container>> #4A90D9
+
+  rectangle "**Notification Service**\n[Container: Worker]\n\nОчередь уведомлений:\nEmail + Telegram.\nНапоминания за 24ч и 1ч." <<Container>> #4A90D9
+
+  rectangle "**Job Scheduler**\n[Container: Cron / Queue]\n\nАвтоотмена при истечении\n15-мин резерва слота.\nТриггер выплат психологам\nпосле завершения сессии." <<Container>> #4A90D9
+
+  ' --- ХРАНИЛИЩА (тёмно-синие) ---
+  rectangle "**PostgreSQL**\n[Container: Database]\n\nПользователи, профили,\nбронирования, платежи,\nотзывы, расписание.\nДанные хранятся в РФ." <<Container>> #3B5998
+
+  rectangle "**File Storage**\n[Container: Object Storage]\n\nДокументы психологов\n(диплом, паспорт, ИП).\nЗакрытое хранилище.\nДоступ только для Admin." <<Container>> #3B5998
+
+}
+
+' === СВЯЗИ: ПОЛЬЗОВАТЕЛИ → WEB APP ===
+"**Клиент**" --> "**Web App (SPA)**\n[Container: React / Vue]\n\nUI для клиента, психолога\nи администратора.\nОтдаётся CDN / Nginx." : Поиск, бронирование,\nоплата [HTTPS]
+
+"**Психолог**" --> "**Web App (SPA)**\n[Container: React / Vue]\n\nUI для клиента, психолога\nи администратора.\nОтдаётся CDN / Nginx." : Профиль, расписание,\nдокументы [HTTPS]
+
+"**Администратор**" --> "**Web App (SPA)**\n[Container: React / Vue]\n\nUI для клиента, психолога\nи администратора.\nОтдаётся CDN / Nginx." : Верификация,\nмодерация [HTTPS]
+
+' === WEB APP → BACKEND ===
+"**Web App (SPA)**\n[Container: React / Vue]\n\nUI для клиента, психолога\nи администратора.\nОтдаётся CDN / Nginx." --> "**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." : REST API calls\n[HTTPS / JSON]
+
+' === BACKEND → БД И ХРАНИЛИЩА ===
+"**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." --> "**PostgreSQL**\n[Container: Database]\n\nПользователи, профили,\nбронирования, платежи,\nотзывы, расписание.\nДанные хранятся в РФ." : CRUD: пользователи,\nбронирования, платежи\n[SQL / TLS]
+
+"**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." --> "**File Storage**\n[Container: Object Storage]\n\nДокументы психологов\n(диплом, паспорт, ИП).\nЗакрытое хранилище.\nДоступ только для Admin." : Загрузка / чтение\nдокументов [S3 API]
+
+' === BACKEND → НОТИФИКАЦИИ И ПЛАТЕЖИ ===
+"**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." ..> "**Notification Service**\n[Container: Worker]\n\nОчередь уведомлений:\nEmail + Telegram.\nНапоминания за 24ч и 1ч." : Событие: отправить\nуведомление [Queue]
+
+"**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." --> "**Платёжный\nпровайдер**\n[External]" : Оплата, возврат,\nвыплата [REST API / TLS]
+
+' === JOB SCHEDULER ===
+"**Job Scheduler**\n[Container: Cron / Queue]\n\nАвтоотмена при истечении\n15-мин резерва слота.\nТриггер выплат психологам\nпосле завершения сессии." ..> "**Backend API**\n[Container: REST / JSON]\n\nБизнес-логика: поиск,\nбронирование, оплата,\nверификация, отзывы, выплаты.\nAuth: JWT + bcrypt." : Триггер: освободить слот,\nзапустить выплату
+
+' === NOTIFICATION → ВНЕШНИЕ ===
+"**Notification Service**\n[Container: Worker]\n\nОчередь уведомлений:\nEmail + Telegram.\nНапоминания за 24ч и 1ч." --> "**Email-сервис**\n[External]" : SMTP / API
+
+"**Notification Service**\n[Container: Worker]\n\nОчередь уведомлений:\nEmail + Telegram.\nНапоминания за 24ч и 1ч." --> "**Telegram Bot API**\n[External]" : Bot API / HTTPS
+
+@enduml

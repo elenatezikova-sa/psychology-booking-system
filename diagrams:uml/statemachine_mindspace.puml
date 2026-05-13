@@ -1,0 +1,76 @@
+@startuml StateMachine_MindSpace
+
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam shadowing false
+
+skinparam state {
+  BackgroundColor #EEF4FB
+  BorderColor #4A90D9
+  FontColor #1A1A1A
+  ArrowColor #4A90D9
+}
+
+title <size:16><b>State Machine — MindSpace</b></size>\n<size:11>Жизненный цикл: Бронирование + Верификация психолога</size>
+
+legend top right
+  |= Цвет |= Значение |
+  |<#EEF4FB> Голубой | Нормальный статус |
+  |<#D6F0D6> Зелёный | Успешное завершение |
+  |<#FFE0E0> Красный | Отмена / Отказ |
+  |<#FFF3CD> Жёлтый | Ожидание / Промежуточный |
+end legend
+
+' =============================================
+' ЧАСТЬ 1: БРОНИРОВАНИЕ
+' =============================================
+
+state "**БРОНИРОВАНИЕ**" as BookingSection {
+
+  [*] --> PendingPayment
+
+  state "pending_payment\nОжидает оплаты" as PendingPayment #FFF3CD
+  state "confirmed\nПодтверждено" as Confirmed #EEF4FB
+  state "completed\nЗавершено" as Completed #D6F0D6
+  state "cancelled\nОтменено" as Cancelled #FFE0E0
+  state "no_show\nКлиент не явился" as NoShow #FFE0E0
+  state "disputed\nВ споре" as Disputed #FFF3CD
+
+  PendingPayment --> Confirmed : Оплата прошла\n[payment.status = completed]
+  PendingPayment --> Cancelled : Таймер 15 мин истёк\n[Job Scheduler]
+
+  Confirmed --> Completed : Сессия проведена\n→ триггер выплаты психологу
+  Confirmed --> Cancelled : Отмена клиентом\n[возврат 100% или 50%]
+  Confirmed --> Cancelled : Отмена психологом\n[возврат 100% клиенту]
+  Confirmed --> NoShow : Клиент не подключился\n через 20 мин\n[возврат = 0]
+
+  Completed --> Disputed : Клиент или психолог\nоткрыл диспут
+  Cancelled --> [*]
+  Completed --> [*]
+  NoShow --> [*]
+  Disputed --> Completed : Диспут закрыт\n[служба поддержки]
+  Disputed --> Cancelled : Диспут → возврат\n[служба поддержки]
+}
+
+' =============================================
+' ЧАСТЬ 2: ВЕРИФИКАЦИЯ ПСИХОЛОГА
+' =============================================
+
+state "**ВЕРИФИКАЦИЯ ПСИХОЛОГА**" as VerifySection {
+
+  [*] --> Pending_V
+
+  state "pending\nНа проверке" as Pending_V #FFF3CD
+  state "approved\nВерифицирован" as Approved_V #D6F0D6
+  state "rejected\nОтклонён" as Rejected_V #FFE0E0
+
+  Pending_V --> Approved_V : Администратор\nодобрил документы\n→ профиль публикуется
+  Pending_V --> Rejected_V : Администратор\nуказал причину отказа
+
+  Rejected_V --> Pending_V : Психолог загрузил\nисправленные документы\n[новая попытка]
+
+  Approved_V --> [*]
+}
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml C4_Level3_Component
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam rectangle {
+  RoundCorner 8
+}
+
+title <size:18><b>C4 — Уровень 3: Component Diagram</b></size>\n<size:12>MindSpace — компоненты Backend API</size>
+
+legend top right
+  |= Цвет |= Значение |
+  |<#5BAD6F> Зелёный | Внешние вызывающие |
+  |<#4A90D9> Синий | Компоненты Backend API |
+  |<#3B5998> Тёмно-синий | Хранилища данных |
+  |<#9E9E9E> Серый | Внешние сервисы |
+  |<#6A1B9A> Фиолетовый | Job Scheduler (планировщик) |
+  |  ——>  | Синхронный вызов |
+  | ..>   | Асинхронный / событие |
+end legend
+
+' === ВНЕШНИЕ ИСТОЧНИКИ ===
+rectangle "**Web App (SPA)**" <<External>> #5BAD6F
+rectangle "**Job Scheduler**" <<External>> #6A1B9A
+
+' === ХРАНИЛИЩА ===
+rectangle "**PostgreSQL**\n[Database]" <<Store>> #3B5998
+rectangle "**File Storage**\n[Object Storage]" <<Store>> #3B5998
+
+' === ВНЕШНИЕ СЕРВИСЫ ===
+rectangle "**Платёжный\nпровайдер**" <<External>> #9E9E9E
+rectangle "**Notification\nService**" <<External>> #9E9E9E
+
+' === КОМПОНЕНТЫ BACKEND API ===
+package "**Backend API**" #EEF4FB {
+
+  rectangle "**Auth Component**\n[Component]\n\nРегистрация и логин\nклиента/психолога.\nJWT-токены, bcrypt.\nПодтверждение email." <<Component>> #4A90D9
+
+  rectangle "**Profile Component**\n[Component]\n\nПрофиль клиента и психолога.\nЗагрузка документов,\nуправление специализациями,\nценами и форматами." <<Component>> #4A90D9
+
+  rectangle "**Verification Component**\n[Component]\n\nОчередь верификации.\nЧеклист документов.\nСтатусы: На проверке /\nВерифицирован / Отклонён." <<Component>> #4A90D9
+
+  rectangle "**Search Component**\n[Component]\n\nФильтрация психологов\n(специализация, цена,\nформат, слот, язык).\nТолько верифицированные." <<Component>> #4A90D9
+
+  rectangle "**Booking Component**\n[Component]\n\nВыбор слота, резерв 15 мин.\nПодтверждение / отмена.\nПолитика отмен: возврат\n100% / 50% / 0%." <<Component>> #4A90D9
+
+  rectangle "**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." <<Component>> #4A90D9
+
+  rectangle "**Review Component**\n[Component]\n\nОтзыв (1–5 + текст)\nтолько после сессии.\nОтвет психолога.\nМодерация Admin." <<Component>> #4A90D9
+
+  rectangle "**Notification Dispatcher**\n[Component]\n\nФормирует события:\nбронь, напоминание,\nотмена, выплата.\nПередаёт в очередь." <<Component>> #4A90D9
+
+  rectangle "**Admin Panel API**\n[Component]\n\nВерификация:\nпросмотр документов,\nодобрение / отказ.\nМодерация отзывов,\nблокировка пользователей." <<Component>> #4A90D9
+
+  rectangle "**Session Component**\n[Component]\n\nСписок предстоящих /\nпрошедших сессий.\nМарк «Сессия проведена».\nТриггер выплаты." <<Component>> #4A90D9
+
+}
+
+' === СВЯЗИ: WEB APP → КОМПОНЕНТЫ ===
+"**Web App (SPA)**" --> "**Auth Component**\n[Component]\n\nРегистрация и логин\nклиента/психолога.\nJWT-токены, bcrypt.\nПодтверждение email." : POST /auth/*
+
+"**Web App (SPA)**" --> "**Profile Component**\n[Component]\n\nПрофиль клиента и психолога.\nЗагрузка документов,\nуправление специализациями,\nценами и форматами." : GET / PUT /profile
+
+"**Web App (SPA)**" --> "**Search Component**\n[Component]\n\nФильтрация психологов\n(специализация, цена,\nформат, слот, язык).\nТолько верифицированные." : GET /search
+
+"**Web App (SPA)**" --> "**Booking Component**\n[Component]\n\nВыбор слота, резерв 15 мин.\nПодтверждение / отмена.\nПолитика отмен: возврат\n100% / 50% / 0%." : POST /bookings
+
+"**Web App (SPA)**" --> "**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." : POST /payments
+
+"**Web App (SPA)**" --> "**Review Component**\n[Component]\n\nОтзыв (1–5 + текст)\nтолько после сессии.\nОтвет психолога.\nМодерация Admin." : POST /reviews
+
+"**Web App (SPA)**" --> "**Admin Panel API**\n[Component]\n\nВерификация:\nпросмотр документов,\nодобрение / отказ.\nМодерация отзывов,\nблокировка пользователей." : /admin/*\n[JWT Admin role]
+
+"**Web App (SPA)**" --> "**Session Component**\n[Component]\n\nСписок предстоящих /\nпрошедших сессий.\nМарк «Сессия проведена».\nТриггер выплаты." : GET /sessions
+
+' === INTER-COMPONENT ===
+"**Booking Component**\n[Component]\n\nВыбор слота, резерв 15 мин.\nПодтверждение / отмена.\nПолитика отмен: возврат\n100% / 50% / 0%." --> "**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." : Запускает оплату\nпосле подтверждения
+
+"**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." ..> "**Notification Dispatcher**\n[Component]\n\nФормирует события:\nбронь, напоминание,\nотмена, выплата.\nПередаёт в очередь." : Событие: оплата\nпрошла / возврат
+
+"**Booking Component**\n[Component]\n\nВыбор слота, резерв 15 мин.\nПодтверждение / отмена.\nПолитика отмен: возврат\n100% / 50% / 0%." ..> "**Notification Dispatcher**\n[Component]\n\nФормирует события:\nбронь, напоминание,\nотмена, выплата.\nПередаёт в очередь." : Событие: бронь\nподтверждена / отменена
+
+"**Session Component**\n[Component]\n\nСписок предстоящих /\nпрошедших сессий.\nМарк «Сессия проведена».\nТриггер выплаты." ..> "**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." : Триггер выплаты\nпсихологу
+
+"**Verification Component**\n[Component]\n\nОчередь верификации.\nЧеклист документов.\nСтатусы: На проверке /\nВерифицирован / Отклонён." ..> "**Notification Dispatcher**\n[Component]\n\nФормирует события:\nбронь, напоминание,\nотмена, выплата.\nПередаёт в очередь." : Результат\nверификации
+
+"**Admin Panel API**\n[Component]\n\nВерификация:\nпросмотр документов,\nодобрение / отказ.\nМодерация отзывов,\nблокировка пользователей." --> "**Verification Component**\n[Component]\n\nОчередь верификации.\nЧеклист документов.\nСтатусы: На проверке /\nВерифицирован / Отклонён." : Управление\nстатусами
+
+"**Admin Panel API**\n[Component]\n\nВерификация:\nпросмотр документов,\nодобрение / отказ.\nМодерация отзывов,\nблокировка пользователей." --> "**Review Component**\n[Component]\n\nОтзыв (1–5 + текст)\nтолько после сессии.\nОтвет психолога.\nМодерация Admin." : Модерация\nотзывов
+
+' === КОМПОНЕНТЫ → ХРАНИЛИЩА ===
+"**Auth Component**\n[Component]\n\nРегистрация и логин\nклиента/психолога.\nJWT-токены, bcrypt.\nПодтверждение email." --> "**PostgreSQL**\n[Database]" : users
+
+"**Profile Component**\n[Component]\n\nПрофиль клиента и психолога.\nЗагрузка документов,\nуправление специализациями,\nценами и форматами." --> "**PostgreSQL**\n[Database]" : profiles
+
+"**Profile Component**\n[Component]\n\nПрофиль клиента и психолога.\nЗагрузка документов,\nуправление специализациями,\nценами и форматами." --> "**File Storage**\n[Object Storage]" : documents
+
+"**Booking Component**\n[Component]\n\nВыбор слота, резерв 15 мин.\nПодтверждение / отмена.\nПолитика отмен: возврат\n100% / 50% / 0%." --> "**PostgreSQL**\n[Database]" : bookings, slots
+
+"**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." --> "**PostgreSQL**\n[Database]" : payments, payouts
+
+"**Review Component**\n[Component]\n\nОтзыв (1–5 + текст)\nтолько после сессии.\nОтвет психолога.\nМодерация Admin." --> "**PostgreSQL**\n[Database]" : reviews
+
+' === → ВНЕШНИЕ СЕРВИСЫ ===
+"**Payment Component**\n[Component]\n\nИнициирует оплату,\nидемпотентность запросов.\nФискальный чек (54-ФЗ).\nВозвраты и выплаты." --> "**Платёжный\nпровайдер**" : REST API
+
+"**Notification Dispatcher**\n[Component]\n\nФормирует события:\nбронь, напоминание,\nотмена, выплата.\nПередаёт в очередь." --> "**Notification\nService**" : Queue / Event
+
+' === JOB SCHEDULER ===
+"**Job Scheduler**" ..> "**Booking Component**\n[Component]\n\nВыбор слота, резерв 15 мин.\nПодтверждение / отмена.\nПолитика отмен: возврат\n100% / 50% / 0%." : Освободить слот\n(15 мин истекло)
+
+"**Job Scheduler**" ..> "**Notification Dispatcher**\n[Component]\n\nФормирует события:\nбронь, напоминание,\nотмена, выплата.\nПередаёт в очередь." : Напоминания\n-24ч, -1ч
+
+@enduml

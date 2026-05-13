@@ -1,0 +1,3462 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MindSpace API",
+    "description": "REST API маркетплейса психологов MindSpace. MVP: поиск, бронирование, оплата, верификация, отзывы, уведомления, диспуты.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "MindSpace Team"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.mindspace.ru/v1",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-staging.mindspace.ru/v1",
+      "description": "Staging"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Регистрация и аутентификация (US-01, US-02)"
+    },
+    {
+      "name": "Client Profile",
+      "description": "Профиль клиента (US-04)"
+    },
+    {
+      "name": "Psychologist Profile",
+      "description": "Профиль психолога (US-03, US-03a, US-03b, US-17)"
+    },
+    {
+      "name": "Search",
+      "description": "Поиск психологов (US-05, US-06)"
+    },
+    {
+      "name": "Messages",
+      "description": "Сообщения до бронирования (US-06a)"
+    },
+    {
+      "name": "Schedule",
+      "description": "Расписание психолога (US-08)"
+    },
+    {
+      "name": "Bookings",
+      "description": "Бронирование сессий (US-07, US-07a, US-09, US-10, US-18)"
+    },
+    {
+      "name": "Payments",
+      "description": "Оплата, возвраты, выплаты (US-11, US-12, US-19)"
+    },
+    {
+      "name": "Reviews",
+      "description": "Отзывы и ответы (US-13, US-20)"
+    },
+    {
+      "name": "Verification",
+      "description": "Верификация психологов (US-16)"
+    },
+    {
+      "name": "Admin",
+      "description": "Панель администратора (US-20, US-21)"
+    },
+    {
+      "name": "Notifications",
+      "description": "Настройки уведомлений (US-14, US-15)"
+    },
+    {
+      "name": "Disputes",
+      "description": "Споры и диспуты (US-22)"
+    }
+  ],
+  "paths": {
+    "/auth/register/client": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Регистрация клиента",
+        "description": "US-01. Создаёт аккаунт клиента и отправляет письмо с подтверждением email.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Аккаунт создан. Email-подтверждение отправлено.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email уже зарегистрирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register/psychologist": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Регистрация психолога",
+        "description": "US-02. Создаёт аккаунт психолога со статусом верификации pending.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PsychologistRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Аккаунт создан. Статус верификации: pending.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email уже зарегистрирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Вход в систему",
+        "description": "Аутентификация по email и паролю. Возвращает JWT access и refresh токены.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный вход",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверный email или пароль",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Обновление access токена",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refresh_token"
+                ],
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Новый access токен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh токен недействителен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/confirm-email": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Подтверждение email",
+        "description": "US-01. Принимает токен из письма и активирует email.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email подтверждён"
+          },
+          "400": {
+            "description": "Токен недействителен или истёк",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/client/profile": {
+      "get": {
+        "tags": [
+          "Client Profile"
+        ],
+        "summary": "Получить профиль клиента",
+        "description": "US-04.",
+        "responses": {
+          "200": {
+            "description": "Профиль клиента",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Client Profile"
+        ],
+        "summary": "Обновить профиль клиента",
+        "description": "US-04.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Профиль обновлён",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Client Profile"
+        ],
+        "summary": "Запрос на удаление аккаунта",
+        "description": "US-04. Удаление персональных данных в течение 30 дней (152-ФЗ). Активные бронирования отменяются с возвратом.",
+        "responses": {
+          "202": {
+            "description": "Запрос принят. Данные будут удалены в течение 30 дней."
+          },
+          "409": {
+            "description": "Есть активные бронирования — требуется подтверждение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologist/profile": {
+      "get": {
+        "tags": [
+          "Psychologist Profile"
+        ],
+        "summary": "Собственный профиль психолога",
+        "description": "US-03. Полный профиль со статусом верификации.",
+        "responses": {
+          "200": {
+            "description": "Профиль психолога",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsychologistPrivateProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Не авторизован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Psychologist Profile"
+        ],
+        "summary": "Обновить профиль психолога",
+        "description": "US-03, US-03b. Основная информация, специализации, форматы, стоимость, длительность сессий.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PsychologistProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Профиль обновлён",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsychologistPrivateProfile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Ошибка валидации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologists/{id}/profile": {
+      "get": {
+        "tags": [
+          "Psychologist Profile"
+        ],
+        "summary": "Публичный профиль психолога",
+        "description": "US-06. Доступен без авторизации.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Публичный профиль",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsychologistPublicProfile"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найден или не верифицирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologist/documents": {
+      "get": {
+        "tags": [
+          "Psychologist Profile"
+        ],
+        "summary": "Список загруженных документов",
+        "description": "US-03a.",
+        "responses": {
+          "200": {
+            "description": "Список документов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VerificationDocument"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Psychologist Profile"
+        ],
+        "summary": "Загрузить документ для верификации",
+        "description": "US-03a. Форматы: PDF, JPG, PNG. Макс. 10 МБ.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "doc_type",
+                  "file"
+                ],
+                "properties": {
+                  "doc_type": {
+                    "type": "string",
+                    "enum": [
+                      "diploma",
+                      "passport",
+                      "tax_status",
+                      "certificate"
+                    ]
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Документ загружен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неверный формат или размер > 10 МБ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Верификация завершена — документ нельзя заменить",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologist/stats": {
+      "get": {
+        "tags": [
+          "Psychologist Profile"
+        ],
+        "summary": "Статистика и история выплат",
+        "description": "US-17. Количество сессий, рейтинг, заработок за месяц, история выплат.",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "month",
+                "quarter",
+                "custom"
+              ]
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статистика психолога",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsychologistStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search/psychologists": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Поиск психологов по фильтрам",
+        "description": "US-05. Только верифицированные психологи. Доступен без авторизации.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "specialization",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "method",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "online",
+                "offline",
+                "both"
+              ]
+            }
+          },
+          {
+            "name": "price_min",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "price_max",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "gender",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "male",
+                "female"
+              ]
+            }
+          },
+          {
+            "name": "available_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "relevance",
+                "price_asc",
+                "price_desc"
+              ]
+            },
+            "description": "По умолчанию: relevance"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "maximum": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список психологов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PsychologistSearchResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dictionaries/specializations": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Справочник специализаций",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Список специализаций",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DictionaryItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dictionaries/methods": {
+      "get": {
+        "tags": [
+          "Search"
+        ],
+        "summary": "Справочник методов работы",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Список методов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DictionaryItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/messages": {
+      "get": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "История переписки",
+        "description": "US-06a. Переписка клиента с психологами или психолога с клиентами.",
+        "parameters": [
+          {
+            "name": "counterpart_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список сообщений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Message"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Отправить сообщение психологу до записи",
+        "description": "US-06a. Требует авторизации. Контактные данные скрыты до бронирования.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "psychologist_id",
+                  "text"
+                ],
+                "properties": {
+                  "psychologist_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Сообщение отправлено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Нет доступа",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologist/schedule": {
+      "get": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "Расписание психолога (личный кабинет)",
+        "description": "US-08.",
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список слотов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleSlot"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologist/schedule/slots": {
+      "post": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "Создать слоты расписания",
+        "description": "US-08.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSlotRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Слоты созданы",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleSlot"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Слот пересекается с существующим",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologist/schedule/slots/{slot_id}": {
+      "delete": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "Удалить / заблокировать слот",
+        "description": "US-08. Если на слот есть бронирование — возвращает 409.",
+        "parameters": [
+          {
+            "name": "slot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Слот удалён"
+          },
+          "409": {
+            "description": "Слот забронирован — сначала отмените бронирование",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologists/{id}/slots": {
+      "get": {
+        "tags": [
+          "Schedule"
+        ],
+        "summary": "Доступные слоты психолога (для клиента)",
+        "description": "US-06, US-07. Ближайшие 30 дней. Без авторизации.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Доступные слоты",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleSlot"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Создать бронирование",
+        "description": "US-07. Резервирует слот на 15 минут (статус pending_payment). Требует подтверждённого email.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Бронирование создано. Слот зарезервирован на 15 минут.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Слот недоступен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Email не подтверждён",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "У клиента уже есть бронирование к этому психологу на это время",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Список сессий клиента",
+        "description": "US-07a. Предстоящие и прошедшие сессии. Пагинация по 20 записей.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "upcoming",
+                "history"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список бронирований",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}": {
+      "get": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Детали бронирования",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Детали бронирования",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Нет доступа",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Не найдено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}/cancel": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Отменить бронирование",
+        "description": "US-09 (клиент): возврат 100% за 24+ ч, 50% менее 24 ч. US-10 (психолог): всегда 100% возврат клиенту.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "description": "Причина отмены (обязательна для психолога)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Отменено. Возврат инициирован.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Отмена невозможна — сессия уже начата",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Нет доступа",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}/no-show": {
+      "post": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Отметить no-show клиента",
+        "description": "US-18. Доступно психологу через 20 мин после начала сессии. Возврат клиенту не производится.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус no-show установлен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Booking"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Прошло менее 20 минут с начала сессии",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Только для психолога этой сессии",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}/calendar.ics": {
+      "get": {
+        "tags": [
+          "Bookings"
+        ],
+        "summary": "Скачать .ics для добавления в календарь",
+        "description": "US-07.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ICS файл",
+            "content": {
+              "text/calendar": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Инициировать оплату бронирования",
+        "description": "US-11. Идемпотентен по idempotency_key. Возвращает URL страницы оплаты провайдера.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Платёж создан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Бронирование уже оплачено или отменено",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Дублирующий запрос (idempotency_key уже использован)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/webhook": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Webhook от платёжного провайдера",
+        "description": "Принимает события о статусе платежа. Обновляет статус бронирования и инициирует уведомления.",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentWebhook"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook обработан"
+          },
+          "400": {
+            "description": "Неверная подпись или формат",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{id}": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Статус платежа",
+        "description": "US-11, US-19. Статус платежа и ссылка на фискальный чек (54-ФЗ).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Детали платежа",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Нет доступа",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payouts": {
+      "get": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "История выплат психолога",
+        "description": "US-12. Сумма, комиссия 15%, статус выплаты.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "processing",
+                "completed",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "История выплат",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Оставить отзыв после сессии",
+        "description": "US-13. Оценка 1–5 (обязательно) + текст до 1000 символов. Один отзыв на бронирование. Отправляется на модерацию.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Отзыв отправлен на модерацию",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Сессия не завершена или отзыв уже оставлен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/psychologists/{id}/reviews": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Отзывы о психологе",
+        "description": "US-06. Только опубликованные (approved). Без авторизации.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список отзывов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/{id}/reply": {
+      "post": {
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Ответить на отзыв",
+        "description": "US-13, US-20. Психолог оставляет ответ. Проходит модерацию.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ответ отправлен на модерацию",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewReply"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Только психолог, которому оставлен отзыв",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Ответ уже оставлен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verification/submit": {
+      "post": {
+        "tags": [
+          "Verification"
+        ],
+        "summary": "Подать заявку на верификацию",
+        "description": "US-16. После загрузки всех обязательных документов.",
+        "responses": {
+          "201": {
+            "description": "Заявка подана, статус: pending",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationRequest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Не все обязательные документы загружены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Заявка уже на рассмотрении",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verification/status": {
+      "get": {
+        "tags": [
+          "Verification"
+        ],
+        "summary": "Статус верификации психолога",
+        "description": "US-16. Текущий статус и история попыток.",
+        "responses": {
+          "200": {
+            "description": "Статус верификации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/verification/queue": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Очередь заявок на верификацию",
+        "description": "US-16. Только для администратора.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список заявок",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VerificationRequest"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/verification/{request_id}/approve": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Одобрить верификацию",
+        "description": "US-16. Профиль психолога публикуется.",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Верификация одобрена"
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/verification/{request_id}/reject": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Отклонить верификацию",
+        "description": "US-16. С указанием причины отказа.",
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reason"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Верификация отклонена"
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reviews": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Очередь отзывов и ответов на модерацию",
+        "description": "US-20. Отзывы и ответы психологов со статусом pending.",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "review",
+                "reply"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список на модерацию",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reviews/{id}/approve": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Одобрить отзыв / ответ",
+        "description": "US-20.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Опубликован"
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/reviews/{id}/reject": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Отклонить отзыв / ответ",
+        "description": "US-20.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Отклонён"
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{id}/block": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Заблокировать пользователя",
+        "description": "US-21. Профиль психолога скрывается из поиска.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reason"
+                ],
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Пользователь заблокирован"
+          },
+          "403": {
+            "description": "Только для администратора",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/settings": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Получить настройки уведомлений",
+        "description": "US-14, US-15.",
+        "responses": {
+          "200": {
+            "description": "Настройки уведомлений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Обновить настройки уведомлений",
+        "description": "US-14, US-15. Email и Telegram каналы.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Настройки обновлены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/telegram/connect": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Привязать Telegram",
+        "description": "US-14, US-15. Сохраняет telegram_chat_id для уведомлений.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "telegram_chat_id"
+                ],
+                "properties": {
+                  "telegram_chat_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Telegram привязан"
+          },
+          "400": {
+            "description": "Неверный chat_id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/disputes": {
+      "post": {
+        "tags": [
+          "Disputes"
+        ],
+        "summary": "Открыть диспут",
+        "description": "US-22. Клиент или психолог открывает спор. Срок оспаривания no-show: 24 часа.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDisputeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Диспут открыт",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispute"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Диспут не может быть открыт для этого бронирования",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Диспут уже существует",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Disputes"
+        ],
+        "summary": "Мои диспуты",
+        "description": "US-22. Диспуты текущего пользователя.",
+        "responses": {
+          "200": {
+            "description": "Список диспутов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Dispute"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/disputes": {
+      "get": {
+        "tags": [
+          "Disputes"
+        ],
+        "summary": "Все диспуты (служба поддержки)",
+        "description": "US-22.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "in_review",
+                "resolved",
+                "closed"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список диспутов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Dispute"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Только для администратора / службы поддержки",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/disputes/{id}/resolve": {
+      "post": {
+        "tags": [
+          "Disputes"
+        ],
+        "summary": "Разрешить диспут",
+        "description": "US-22. Срок рассмотрения: 5 рабочих дней.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "resolution",
+                  "outcome"
+                ],
+                "properties": {
+                  "resolution": {
+                    "type": "string"
+                  },
+                  "outcome": {
+                    "type": "string",
+                    "enum": [
+                      "refund_full",
+                      "refund_partial",
+                      "no_refund"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Диспут разрешён",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispute"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Только для службы поддержки",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "EMAIL_ALREADY_EXISTS"
+          },
+          "message": {
+            "type": "string",
+            "example": "Пользователь с таким email уже зарегистрирован"
+          }
+        }
+      },
+      "ClientRegisterRequest": {
+        "type": "object",
+        "required": [
+          "display_name",
+          "email",
+          "password"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "example": "Анна"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        }
+      },
+      "PsychologistRegisterRequest": {
+        "type": "object",
+        "required": [
+          "full_name",
+          "email",
+          "phone",
+          "password"
+        ],
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "example": "Дмитрий Иванов"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+79001234567"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserShort"
+          }
+        }
+      },
+      "UserShort": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "psychologist",
+              "admin",
+              "support"
+            ]
+          },
+          "email_confirmed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClientProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "about_request": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "preferred_format": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline",
+              "any"
+            ]
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Europe/Moscow"
+          },
+          "notification_email": {
+            "type": "boolean"
+          },
+          "notification_telegram": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClientProfileRequest": {
+        "type": "object",
+        "properties": {
+          "display_name": {
+            "type": "string"
+          },
+          "about_request": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "preferred_format": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline",
+              "any"
+            ]
+          },
+          "timezone": {
+            "type": "string"
+          }
+        }
+      },
+      "PsychologistPublicProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "experience_years": {
+            "type": "integer"
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DictionaryItem"
+            }
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DictionaryItem"
+            }
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "online",
+                "offline"
+              ]
+            }
+          },
+          "session_duration_min": {
+            "type": "integer",
+            "enum": [
+              50,
+              90
+            ]
+          },
+          "price_rub": {
+            "type": "number"
+          },
+          "city": {
+            "type": "string"
+          },
+          "avg_rating": {
+            "type": "number",
+            "format": "float"
+          },
+          "total_sessions": {
+            "type": "integer"
+          },
+          "is_verified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PsychologistPrivateProfile": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PsychologistPublicProfile"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "verification_status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "verified",
+                  "rejected"
+                ]
+              },
+              "is_published": {
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "PsychologistProfileRequest": {
+        "type": "object",
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "experience_years": {
+            "type": "integer"
+          },
+          "specialization_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "method_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "online",
+                "offline"
+              ]
+            }
+          },
+          "session_duration_min": {
+            "type": "integer",
+            "enum": [
+              50,
+              90
+            ]
+          },
+          "price_rub": {
+            "type": "number"
+          },
+          "city": {
+            "type": "string"
+          }
+        }
+      },
+      "PsychologistStats": {
+        "type": "object",
+        "properties": {
+          "sessions_total": {
+            "type": "integer"
+          },
+          "sessions_this_month": {
+            "type": "integer"
+          },
+          "avg_rating": {
+            "type": "number",
+            "format": "float"
+          },
+          "earnings_this_month_rub": {
+            "type": "number"
+          },
+          "payouts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payout"
+            }
+          }
+        }
+      },
+      "DictionaryItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "PsychologistSearchResult": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PsychologistCard"
+            }
+          }
+        }
+      },
+      "PsychologistCard": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "full_name": {
+            "type": "string"
+          },
+          "photo_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DictionaryItem"
+            }
+          },
+          "price_rub": {
+            "type": "number"
+          },
+          "avg_rating": {
+            "type": "number",
+            "format": "float"
+          },
+          "nearest_slot_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "online",
+                "offline"
+              ]
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sender_role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "psychologist"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "is_read": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ScheduleSlot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC"
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "reserved",
+              "booked",
+              "blocked"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          }
+        }
+      },
+      "CreateSlotRequest": {
+        "type": "object",
+        "required": [
+          "slots"
+        ],
+        "properties": {
+          "slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "starts_at",
+                "format"
+              ],
+              "properties": {
+                "starts_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "format": {
+                  "type": "string",
+                  "enum": [
+                    "online",
+                    "offline"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "CreateBookingRequest": {
+        "type": "object",
+        "required": [
+          "slot_id",
+          "psychologist_id",
+          "format"
+        ],
+        "properties": {
+          "slot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "psychologist_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          }
+        }
+      },
+      "Booking": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "psychologist_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/ScheduleSlot"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "online",
+              "offline"
+            ]
+          },
+          "price_rub": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending_payment",
+              "confirmed",
+              "completed",
+              "cancelled",
+              "no_show",
+              "disputed"
+            ]
+          },
+          "reservation_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BookingListResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Booking"
+            }
+          }
+        }
+      },
+      "CancelResponse": {
+        "type": "object",
+        "properties": {
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "refund_amount_rub": {
+            "type": "number"
+          },
+          "refund_pct": {
+            "type": "integer",
+            "example": 100
+          },
+          "message": {
+            "type": "string",
+            "example": "Возврат 100% инициирован. Срок зачисления: 3-10 рабочих дней."
+          }
+        }
+      },
+      "CreatePaymentRequest": {
+        "type": "object",
+        "required": [
+          "booking_id",
+          "idempotency_key"
+        ],
+        "properties": {
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "description": "Уникальный ключ для идемпотентности запроса"
+          }
+        }
+      },
+      "PaymentResponse": {
+        "type": "object",
+        "properties": {
+          "payment_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "completed",
+              "failed"
+            ]
+          },
+          "payment_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL страницы оплаты у провайдера"
+          },
+          "amount_rub": {
+            "type": "number"
+          }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount_rub": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "completed",
+              "refunded",
+              "failed"
+            ]
+          },
+          "fiscal_receipt_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Ссылка на фискальный чек (54-ФЗ)"
+          },
+          "paid_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentWebhook": {
+        "type": "object",
+        "required": [
+          "event",
+          "payment_id",
+          "status"
+        ],
+        "properties": {
+          "event": {
+            "type": "string",
+            "enum": [
+              "payment.succeeded",
+              "payment.failed",
+              "refund.succeeded"
+            ]
+          },
+          "payment_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "fiscal_receipt_url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "Payout": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "gross_amount_rub": {
+            "type": "number",
+            "description": "Полная стоимость сессии"
+          },
+          "commission_amount_rub": {
+            "type": "number",
+            "description": "Комиссия платформы 15%"
+          },
+          "net_amount_rub": {
+            "type": "number",
+            "description": "Сумма к выплате психологу"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "failed"
+            ]
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PayoutListResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payout"
+            }
+          }
+        }
+      },
+      "CreateReviewRequest": {
+        "type": "object",
+        "required": [
+          "booking_id",
+          "rating"
+        ],
+        "properties": {
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "client_display_name": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "text": {
+            "type": "string"
+          },
+          "moderation_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reply": {
+            "$ref": "#/components/schemas/ReviewReply"
+          }
+        }
+      },
+      "ReviewReply": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "moderation_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReviewListResponse": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "avg_rating": {
+            "type": "number",
+            "format": "float"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Review"
+            }
+          }
+        }
+      },
+      "VerificationDocument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "doc_type": {
+            "type": "string",
+            "enum": [
+              "diploma",
+              "passport",
+              "tax_status",
+              "certificate"
+            ]
+          },
+          "is_required": {
+            "type": "boolean"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VerificationRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "psychologist_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected"
+            ]
+          },
+          "reject_reason": {
+            "type": "string"
+          },
+          "attempt_number": {
+            "type": "integer"
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VerificationStatus": {
+        "type": "object",
+        "properties": {
+          "current_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "verified",
+              "rejected"
+            ]
+          },
+          "last_request": {
+            "$ref": "#/components/schemas/VerificationRequest"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerificationDocument"
+            }
+          }
+        }
+      },
+      "NotificationSettings": {
+        "type": "object",
+        "properties": {
+          "notification_email": {
+            "type": "boolean"
+          },
+          "notification_telegram": {
+            "type": "boolean"
+          },
+          "telegram_chat_id": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateDisputeRequest": {
+        "type": "object",
+        "required": [
+          "booking_id",
+          "reason"
+        ],
+        "properties": {
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "Dispute": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "booking_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "initiated_by_role": {
+            "type": "string",
+            "enum": [
+              "client",
+              "psychologist"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "in_review",
+              "resolved",
+              "closed"
+            ]
+          },
+          "resolution": {
+            "type": "string"
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolved_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
