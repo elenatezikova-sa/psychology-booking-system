@@ -38,11 +38,11 @@
 ├── README.md
 ├── 📁 docs/
 │   ├── BRD_MindSpace.docx              ← бизнес-требования
-│   └── UserStories_MindSpace.docx      ← пользовательские истории (22 US)
+│   └── UserStories_MindSpace.docx      ← пользовательские истории
 ├── 📁 diagrams/
 │   ├── booking_process.bpmn            ← BPMN: процесс бронирования
 │   ├── booking_process_drawio.svg      ← BPMN: визуализация (draw.io SVG)
-│   ├── er_mindspace.puml               ← ER-диаграмма (8 доменов)
+│   ├── er_mindspace.puml               ← ER-диаграмма
 │   ├── 📁 uml/
 │   │   ├── usecase_mindspace.puml      ← Use Case
 │   │   ├── sequence_booking_mindspace.puml  ← Sequence: бронирование
@@ -64,7 +64,7 @@
 
 Описывает бизнес-цели, проблему, заинтересованные стороны, персоны и высокоуровневые требования к платформе MindSpace.
 
-**Ключевые разделы:** бизнес-контекст · персоны (Анна / Дмитрий / Мария) · процессы To-Be · функциональные и нефункциональные требования · риски · критерии успеха MVP
+**Ключевые разделы:** бизнес-контекст · процессы To-Be · функциональные и нефункциональные требования · риски · критерии успеха MVP
 
 👉 [BRD_MindSpace.docx](./docs/BRD_MindSpace.docx) · [Открыть как PDF](./docs/BRD_MindSpace_pdf.pdf)
 👉 [docs/BRD_MindSpace.docx](./docs/BRD_MindSpace.docx)
@@ -519,8 +519,8 @@ erDiagram
 
 | Артефакт | Инструмент |
 |----------|------------|
-| BRD, User Stories | Word / Notion |
-| BPMN | bpmn-js / Camunda Modeler |
+| BRD, User Stories | Word |
+| BPMN | drawio |
 | Use Case, Sequence, State Machine, C4, ER | PlantUML |
 | API | OpenAPI 3.0.3 / Swagger |
 | SQL | PostgreSQL |
