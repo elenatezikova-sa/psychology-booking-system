@@ -97,7 +97,9 @@
 Три дорожки: Клиент · Платформа MindSpace · Психолог.  
 Покрывает: поиск, проверку слота, 15-минутный резерв, оплату, подтверждение, завершение сессии, отмену и обработку ошибок.
 
-👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn)
+![BPMN — процесс бронирования MindSpace](./diagrams/booking_process.drawio.svg)
+
+👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn) · [booking_process_drawio.svg](./diagrams/booking_process_drawio.svg)
 
 ---
 
@@ -334,6 +336,52 @@ flowchart TD
     Notify -->|SMTP / API| EmailSvc
     Notify -->|Bot API| TgBot
 ```
+
+#### Level 3 — Component
+
+Внутренняя структура Backend API.
+
+```mermaid
+flowchart TD
+    SPA["🖥️ Web App (SPA)"]
+    PG[("🗄️ PostgreSQL")]
+    Files[("📁 File Storage")]
+    Pay["💳 Платёжный провайдер"]
+    Notify["🔔 Notification Service"]
+
+    subgraph API ["⚙️ Backend API"]
+        Auth["🔐 Auth Component\nРегистрация · Вход · JWT\nПодтверждение email"]
+        Profile["👤 Profile Component\nПрофили клиентов\nи психологов"]
+        Search["🔍 Search Component\nПоиск по фильтрам\nСправочники"]
+        Verification["✅ Verification Component\nЗаявки · Документы\nЖурнал действий"]
+        Booking["📅 Booking Component\nСлоты · Бронирование\nРезервирование 15 мин"]
+        Payment["💰 Payment Component\n54-ФЗ · Idempotency\nВозвраты · Выплаты"]
+        Review["⭐ Review Component\nОтзывы · Модерация\nОтветы психологов"]
+        Dispute["⚖️ Dispute Component\nСпоры · Эскалация\nРазрешение"]
+        Messaging["💬 Messaging Component\nЧат до бронирования"]
+    end
+
+    SPA -->|REST / HTTPS| Auth
+    SPA -->|REST / HTTPS| Profile
+    SPA -->|REST / HTTPS| Search
+    SPA -->|REST / HTTPS| Verification
+    SPA -->|REST / HTTPS| Booking
+    SPA -->|REST / HTTPS| Payment
+    SPA -->|REST / HTTPS| Review
+    SPA -->|REST / HTTPS| Dispute
+    SPA -->|REST / HTTPS| Messaging
+
+    Auth & Profile & Search & Verification --> PG
+    Booking & Payment & Review & Dispute & Messaging --> PG
+
+    Verification -->|S3 API| Files
+    Payment -->|REST API| Pay
+    Booking -->|событие| Notify
+    Payment -->|событие| Notify
+    Dispute -->|событие| Notify
+```
+
+👉 [diagrams/c4/c4_level3_component.puml](./diagrams/c4/c4_level3_component.puml)
 
 👉 [diagrams/c4/c4_level1_context.puml](./diagrams/c4/c4_level1_context.puml) · [c4_level2_container.puml](./diagrams/c4/c4_level2_container.puml) · [c4_level3_component.puml](./diagrams/c4/c4_level3_component.puml)
 
