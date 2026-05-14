@@ -38,11 +38,10 @@
 ├── README.md
 ├── 📁 docs/
 │   ├── BRD_MindSpace.docx                   ← бизнес-требования
-│   └── UserStories_MindSpace.docx           ← пользовательские истории
+│   └── UserStories_MindSpace.docx           ← пользовательские истории (22 US)
 ├── 📁 diagrams/
 │   ├── booking_process.bpmn                 ← BPMN: процесс бронирования
-│   ├── booking_process_drawio.svg           ← BPMN: визуализация (draw.io SVG)
-│   ├── er_mindspace.puml                    ← ER-диаграмма
+│   ├── er_mindspace.puml                    ← ER-диаграмма (8 доменов)
 │   ├── 📁 uml/
 │   │   ├── usecase_mindspace.puml           ← Use Case
 │   │   ├── sequence_booking_mindspace.puml  ← Sequence: бронирование
@@ -52,8 +51,7 @@
 │       ├── c4_level2_container.puml         ← Container
 │       └── c4_level3_component.puml         ← Component
 ├── 📁 api/
-│   ├── mindspace_api.json                   ← OpenAPI 3.0.3 спецификация
-│   └── mindspace_swagger.html               ← Swagger UI (интерактивная документация)
+│   └── mindspace_api.json                   ← OpenAPI 3.0.3 спецификация
 └── 📁 sql/
     ├── 01_schema.sql                        ← DDL: создание 20 таблиц
     ├── 02_seed.sql                          ← тестовые данные (12 пользователей, 6 бронирований)
@@ -69,9 +67,9 @@
 
 Описывает бизнес-цели, проблему, заинтересованные стороны, персоны и высокоуровневые требования к платформе MindSpace.
 
-**Ключевые разделы:** бизнес-контекст · процессы To-Be · функциональные и нефункциональные требования · риски · критерии успеха MVP
+**Ключевые разделы:** бизнес-контекст · персоны (Анна / Дмитрий / Мария) · процессы To-Be · функциональные и нефункциональные требования · риски · критерии успеха MVP
 
-👉 [BRD_MindSpace.docx](./docs/BRD_MindSpace.docx) · [Открыть как PDF](./docs/BRD_MindSpace_pdf.pdf)
+👉 [docs/BRD_MindSpace.docx](./docs/BRD_MindSpace.docx)
 
 ---
 
@@ -90,7 +88,7 @@
 | Верификация психологов | US-16, US-21 |
 | Споры и поддержка | US-22 |
 
-👉 [UserStories_MindSpace.docx](./docs/UserStories_MindSpace.docx) · [Открыть как PDF](./docs/UserStories_MindSpace_pdf.pdf)
+👉 [docs/UserStories_MindSpace.docx](./docs/UserStories_MindSpace.docx)
 
 ---
 
@@ -99,9 +97,7 @@
 Три дорожки: Клиент · Платформа MindSpace · Психолог.  
 Покрывает: поиск, проверку слота, 15-минутный резерв, оплату, подтверждение, завершение сессии, отмену и обработку ошибок.
 
-![BPMN — процесс бронирования MindSpace](./diagrams/booking_process.drawio.svg)
-
-👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn) · [booking_process_drawio.svg](./diagrams/booking_process_drawio.svg)
+👉 [diagrams/booking_process.bpmn](./diagrams/booking_process.bpmn)
 
 ---
 
@@ -111,6 +107,56 @@
 
 Взаимодействие трёх акторов (Клиент, Психолог, Администратор) с функциями платформы.
 
+```mermaid
+flowchart LR
+    Client(["👤 Клиент"])
+    Psych(["🧑‍⚕️ Психолог"])
+    Admin(["🛡️ Администратор"])
+
+    subgraph MS ["🧠 MindSpace"]
+        subgraph ACC ["Аккаунт"]
+            UC_Reg["Зарегистрироваться"]
+            UC_Login["Войти в систему"]
+        end
+        subgraph SEARCH ["Поиск и запись"]
+            UC_Search["Найти психолога по фильтрам"]
+            UC_Profile["Просмотреть профиль"]
+            UC_PreMsg["Написать психологу до записи"]
+            UC_Book["Забронировать сессию"]
+            UC_Pay["Оплатить сессию"]
+            UC_Cancel["Отменить бронь"]
+        end
+        subgraph AFTER ["После сессии"]
+            UC_Review["Оставить отзыв"]
+            UC_Dispute["Открыть диспут"]
+        end
+        subgraph PSYCH_UC ["Практика психолога"]
+            UC_Schedule["Управлять расписанием"]
+            UC_EditProfile["Заполнить профиль и цены"]
+            UC_Docs["Загрузить документы"]
+            UC_Reply["Ответить на отзыв"]
+            UC_PsychCancel["Отменить сессию"]
+        end
+        subgraph ADMIN_UC ["Администрирование"]
+            UC_Verify["Верифицировать психолога"]
+            UC_ModReview["Модерировать отзывы"]
+            UC_Block["Заблокировать пользователя"]
+            UC_ResolveDisp["Разрешить диспут"]
+        end
+    end
+
+    Client --- UC_Reg & UC_Login & UC_Search & UC_Profile
+    Client --- UC_Book & UC_Cancel & UC_Review & UC_Dispute & UC_PreMsg
+    Psych --- UC_Reg & UC_Login & UC_Schedule
+    Psych --- UC_EditProfile & UC_Docs & UC_Reply & UC_PsychCancel
+    Admin --- UC_Verify & UC_ModReview & UC_Block & UC_ResolveDisp
+
+    UC_Book -.->|«include»| UC_Pay
+    UC_EditProfile -.->|«include»| UC_Docs
+    UC_Verify -.->|«include»| UC_Docs
+    UC_Profile -.->|«extend»| UC_PreMsg
+```
+
 👉 [diagrams/uml/usecase_mindspace.puml](./diagrams/uml/usecase_mindspace.puml)
 
 ---
@@ -119,11 +165,109 @@
 
 Happy Path + сценарий отмены клиентом.
 
+```mermaid
+sequenceDiagram
+    actor Client as 👤 Клиент
+    participant SPA as Web App (SPA)
+    participant API as Backend API
+    participant DB as PostgreSQL
+    participant Pay as Платёжный провайдер
+    participant Notify as Notification Service
+
+    rect rgb(235, 245, 255)
+        Note over Client,DB: Поиск и выбор
+        Client->>SPA: Ввод фильтров (специализация, цена, слот)
+        SPA->>API: GET /search?filters=...
+        API->>DB: SELECT психологи WHERE verified + фильтры
+        DB-->>API: Список психологов
+        API-->>SPA: Психологи + свободные слоты
+        SPA-->>Client: Карточки психологов
+        Client->>SPA: Выбрать слот
+        SPA->>API: POST /bookings {slot_id, psychologist_id}
+        API->>DB: UPDATE slot → reserved, INSERT booking(pending_payment), expires = now+15min
+        DB-->>API: booking_id
+        API-->>SPA: booking_id, таймер 15 мин
+        SPA-->>Client: ⏱ Экран оплаты (15 минут)
+    end
+
+    rect rgb(235, 255, 240)
+        Note over Client,Notify: Оплата
+        Client->>SPA: Нажать «Оплатить»
+        SPA->>API: POST /payments {booking_id}
+        API->>Pay: POST /charge {amount, idempotency_key}
+        Pay-->>API: payment_id, completed + чек (54-ФЗ)
+        API->>DB: UPDATE payment → completed, booking → confirmed, slot → booked
+        DB-->>API: OK
+        API->>Notify: Событие: booking_confirmed
+        Notify-->>Client: 📧 Email + Telegram: «Бронь подтверждена»
+        SPA-->>Client: Экран «Сессия забронирована»
+    end
+
+    rect rgb(255, 235, 235)
+        Note over Client,Notify: Отмена клиентом
+        alt Отмена за 24+ ч — возврат 100%
+            Client->>SPA: Отменить бронь
+            SPA->>API: POST /bookings/{id}/cancel
+            API->>Pay: POST /refund {amount=100%}
+            Pay-->>API: refund: completed
+            API->>DB: UPDATE booking → cancelled, slot → available
+            Notify-->>Client: 📧 «Возврат 100%»
+        else Отмена менее чем за 24 ч — возврат 50%
+            Client->>SPA: Отменить бронь
+            SPA->>API: POST /bookings/{id}/cancel
+            API->>Pay: POST /refund {amount=50%}
+            Pay-->>API: refund: completed
+            API->>DB: UPDATE booking → cancelled
+            Notify-->>Client: 📧 «Возврат 50%»
+        end
+    end
+```
+
 👉 [diagrams/uml/sequence_booking_mindspace.puml](./diagrams/uml/sequence_booking_mindspace.puml)
 
 ---
 
 #### State Machine — жизненный цикл сущностей
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> pending_payment : Слот выбран клиентом
+
+    pending_payment : ⏳ pending_payment\nОжидает оплаты
+    confirmed : ✅ confirmed\nПодтверждено
+    completed : 🎉 completed\nЗавершено
+    cancelled : ❌ cancelled\nОтменено
+    no_show : 👻 no_show\nКлиент не явился
+    disputed : ⚖️ disputed\nВ споре
+
+    pending_payment --> confirmed : Оплата прошла
+    pending_payment --> cancelled : Таймер 15 мин истёк
+    confirmed --> completed : Сессия проведена
+    confirmed --> cancelled : Отмена клиентом / психологом
+    confirmed --> no_show : Клиент не подключился через 20 мин
+    completed --> disputed : Открыт диспут
+    disputed --> completed : Диспут закрыт
+    disputed --> cancelled : Диспут → возврат
+    cancelled --> [*]
+    completed --> [*]
+    no_show --> [*]
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending : Психолог загрузил документы
+
+    pending : ⏳ pending\nНа проверке
+    approved : ✅ approved\nВерифицирован
+    rejected : ❌ rejected\nОтклонён
+
+    pending --> approved : Администратор одобрил\n→ профиль публикуется
+    pending --> rejected : Администратор отклонил
+    rejected --> pending : Загружены исправленные документы
+
+    approved --> [*]
+```
 
 👉 [diagrams/uml/statemachine_mindspace.puml](./diagrams/uml/statemachine_mindspace.puml)
 
@@ -131,11 +275,172 @@ Happy Path + сценарий отмены клиентом.
 
 ### 5. C4 Model ✅
 
+#### Level 1 — System Context
+
+```mermaid
+flowchart TD
+    Client(["👤 Клиент\nИщет психолога,\nзаписывается, оплачивает"])
+    Psych(["🧑‍⚕️ Психолог\nУправляет расписанием,\nпринимает оплату"])
+    Admin(["🛡️ Администратор\nВерификация, модерация,\nрассмотрение споров"])
+
+    subgraph MS ["🧠 MindSpace [Web Platform]\nМаркетплейс психологов · MVP"]
+    end
+
+    Pay["💳 Платёжный провайдер\nОплата, возвраты, выплаты\nФискализация (54-ФЗ)"]
+    Email["📧 Email-сервис\nПодтверждения, напоминания"]
+    Tg["✈️ Telegram Bot API\nПуш-уведомления"]
+    Zoom["📹 Zoom / Google Meet\nВидеосвязь (вне скоупа)"]
+    FNS["🏛️ ФНС / Роскомнадзор\n54-ФЗ · 152-ФЗ"]
+
+    Client -->|"Поиск, бронирование, оплата [HTTPS]"| MS
+    Psych -->|"Профиль, расписание, документы [HTTPS]"| MS
+    Admin -->|"Панель администратора [HTTPS]"| MS
+    MS -->|"Оплата, возвраты, выплаты [REST API]"| Pay
+    MS -->|"Письма [SMTP / REST API]"| Email
+    MS -->|"Push-уведомления [Bot API]"| Tg
+    MS -.->|"Соблюдает требования"| FNS
+    Client -.->|"Проводит сессию (вне платформы)"| Zoom
+    Psych -.->|"Проводит сессию (вне платформы)"| Zoom
+```
+
+#### Level 2 — Container
+
+```mermaid
+flowchart TD
+    Client(["👤 Клиент"])
+    Psych(["🧑‍⚕️ Психолог"])
+    Admin(["🛡️ Администратор"])
+
+    subgraph MindSpace ["🧠 MindSpace Platform"]
+        SPA["🖥️ Web App (SPA)\nReact / Vue\nUI для всех ролей"]
+        API["⚙️ Backend API\nREST / JSON\nБизнес-логика · JWT + bcrypt"]
+        Notify["🔔 Notification Service\nWorker\nEmail + Telegram · напоминания 24ч/1ч"]
+        Scheduler["⏰ Job Scheduler\nCron / Queue\nАвтоотмена резерва · триггер выплат"]
+        PG[("🗄️ PostgreSQL\nПользователи, брони,\nплатежи · данные в РФ")]
+        Files[("📁 File Storage\nObject Storage\nДокументы психологов")]
+    end
+
+    Pay["💳 Платёжный провайдер"]
+    EmailSvc["📧 Email-сервис"]
+    TgBot["✈️ Telegram Bot API"]
+
+    Client & Psych & Admin -->|HTTPS| SPA
+    SPA -->|REST API / HTTPS| API
+    API -->|SQL / TLS| PG
+    API -->|S3 API| Files
+    API -->|REST API| Pay
+    API -->|событие| Notify
+    API -->|событие| Scheduler
+    Notify -->|SMTP / API| EmailSvc
+    Notify -->|Bot API| TgBot
+```
+
 👉 [diagrams/c4/c4_level1_context.puml](./diagrams/c4/c4_level1_context.puml) · [c4_level2_container.puml](./diagrams/c4/c4_level2_container.puml) · [c4_level3_component.puml](./diagrams/c4/c4_level3_component.puml)
 
 ---
 
 ### 6. ER-диаграмма ✅
+
+```mermaid
+erDiagram
+    users ||--o| client_profiles : "профиль клиента"
+    users ||--o| psychologist_profiles : "профиль психолога"
+
+    psychologist_profiles ||--o{ psychologist_specializations : "содержит"
+    specializations ||--o{ psychologist_specializations : "используется в"
+    psychologist_profiles ||--o{ psychologist_methods : "использует"
+    therapy_methods ||--o{ psychologist_methods : "используется в"
+
+    psychologist_profiles ||--o{ verification_requests : "подаёт заявку"
+    verification_requests ||--o{ verification_documents : "включает"
+    verification_requests ||--o{ verification_log : "логируется"
+
+    psychologist_profiles ||--o{ schedule_slots : "владеет"
+    client_profiles ||--o{ bookings : "создаёт"
+    psychologist_profiles ||--o{ bookings : "получает"
+    schedule_slots ||--o| bookings : "резервируется"
+
+    bookings ||--o| payments : "оплачивается"
+    payments ||--o{ refunds : "возвращается"
+    bookings ||--o{ refunds : "порождает"
+    psychologist_profiles ||--o{ payouts : "получает"
+    bookings ||--o| payouts : "генерирует"
+
+    bookings ||--o| reviews : "содержит"
+    reviews ||--o| review_replies : "отвечает"
+
+    users ||--o{ notifications : "получает"
+    bookings ||--o{ notifications : "порождает"
+
+    client_profiles ||--o{ pre_booking_messages : "отправляет"
+    bookings ||--o| disputes : "эскалируется"
+
+    users {
+        UUID id PK
+        string email
+        string role "client / psychologist / admin"
+        bool email_confirmed
+        bool is_active
+    }
+    psychologist_profiles {
+        UUID id PK
+        UUID user_id FK
+        string full_name
+        decimal price_rub
+        string verification_status "pending / verified / rejected"
+        bool is_published
+        decimal avg_rating
+    }
+    client_profiles {
+        UUID id PK
+        UUID user_id FK
+        string display_name
+        string preferred_format "online / offline / any"
+    }
+    bookings {
+        UUID id PK
+        UUID client_id FK
+        UUID psychologist_id FK
+        UUID slot_id FK
+        decimal price_rub
+        string status "pending_payment / confirmed / completed / cancelled / no_show / disputed"
+        timestamp reservation_expires_at
+    }
+    payments {
+        UUID id PK
+        UUID booking_id FK
+        decimal amount_rub
+        string status "pending / completed / refunded / failed"
+        string fiscal_receipt_url
+    }
+    schedule_slots {
+        UUID id PK
+        UUID psychologist_id FK
+        timestamp starts_at
+        timestamp ends_at
+        string status "available / reserved / booked / blocked"
+    }
+    verification_requests {
+        UUID id PK
+        UUID psychologist_id FK
+        string status "pending / approved / rejected"
+        string reject_reason
+        int attempt_number
+    }
+    reviews {
+        UUID id PK
+        UUID booking_id FK
+        UUID client_id FK
+        int rating
+        string moderation_status "pending / approved / rejected"
+    }
+    disputes {
+        UUID id PK
+        UUID booking_id FK
+        string status "open / in_review / resolved / closed"
+        string resolution
+    }
+```
 
 👉 [diagrams/er_mindspace.puml](./diagrams/er_mindspace.puml)
 
@@ -187,7 +492,7 @@ Happy Path + сценарий отмены клиентом.
 
 </details>
 
-👉 [api/mindspace_api.json](./api/mindspace_api.json) · [Swagger UI](./api/mindspace_swagger.html)
+👉 [api/mindspace_api.json](./api/mindspace_api.json)
 
 ---
 
@@ -270,8 +575,8 @@ PostgreSQL 16 · 20 таблиц · 8 доменов · тестовые дан�
 
 | Артефакт | Инструмент |
 |----------|------------|
-| BRD, User Stories | Word |
-| BPMN | draw.io |
+| BRD, User Stories | Word / Notion |
+| BPMN | bpmn-js / Camunda Modeler |
 | Use Case, Sequence, State Machine, C4, ER | PlantUML |
 | API | OpenAPI 3.0.3 / Swagger |
 | SQL | PostgreSQL 16 · DBeaver · Docker |
