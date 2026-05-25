@@ -1497,9 +1497,9 @@
             "content": {
               "text/calendar": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
+                  "type": "string"
+                },
+                "example": "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MindSpace//MindSpace API//RU\nBEGIN:VEVENT\nUID:550e8400-e29b-41d4-a716-446655440000@mindspace.ru\nDTSTAMP:20240601T120000Z\nDTSTART:20240615T100000Z\nDTEND:20240615T110000Z\nSUMMARY:Сессия с психологом Дмитрий Иванов\nDESCRIPTION:Онлайн-сессия. Ссылка будет отправлена на email.\nORGANIZER;CN=MindSpace:mailto:noreply@mindspace.ru\nEND:VEVENT\nEND:VCALENDAR"
               }
             }
           }
