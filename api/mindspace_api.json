@@ -113,6 +113,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "EMAIL_ALREADY_EXISTS",
+                  "message": "Пользователь с таким email уже зарегистрирован"
                 }
               }
             }
@@ -123,6 +127,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "VALIDATION_ERROR",
+                  "message": "Некорректный формат email или пароль слишком короткий"
                 }
               }
             }
@@ -165,6 +173,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "EMAIL_ALREADY_EXISTS",
+                  "message": "Пользователь с таким email уже зарегистрирован"
                 }
               }
             }
@@ -175,6 +187,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "VALIDATION_ERROR",
+                  "message": "Некорректный формат email или телефона"
                 }
               }
             }
@@ -217,6 +233,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INVALID_CREDENTIALS",
+                  "message": "Неверный email или пароль"
                 }
               }
             }
@@ -266,6 +286,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INVALID_REFRESH_TOKEN",
+                  "message": "Refresh-токен недействителен или истёк"
                 }
               }
             }
@@ -309,6 +333,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INVALID_OR_EXPIRED_TOKEN",
+                  "message": "Токен недействителен или истёк"
                 }
               }
             }
@@ -340,6 +368,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "UNAUTHORIZED",
+                  "message": "Требуется авторизация"
                 }
               }
             }
@@ -379,6 +411,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "VALIDATION_ERROR",
+                  "message": "Некорректные данные профиля"
                 }
               }
             }
@@ -396,11 +432,15 @@
             "description": "Запрос принят. Данные будут удалены в течение 30 дней."
           },
           "409": {
-            "description": "Есть активные бронирования — требуется подтверждение",
+            "description": "Есть активные бронирования  требуется подтверждение",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "ACTIVE_BOOKINGS_EXIST",
+                  "message": "Есть активные бронирования — требуется подтверждение"
                 }
               }
             }
@@ -432,6 +472,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "UNAUTHORIZED",
+                  "message": "Требуется авторизация"
                 }
               }
             }
@@ -471,6 +515,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "VALIDATION_ERROR",
+                  "message": "Некорректные данные профиля психолога"
                 }
               }
             }
@@ -514,6 +562,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "PSYCHOLOGIST_NOT_FOUND",
+                  "message": "Психолог не найден или не прошёл верификацию"
                 }
               }
             }
@@ -596,16 +648,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INVALID_FILE",
+                  "message": "Неверный формат файла или размер превышает 10 МБ"
                 }
               }
             }
           },
           "409": {
-            "description": "Верификация завершена — документ нельзя заменить",
+            "description": "Верификация завершена  документ нельзя заменить",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "VERIFICATION_COMPLETED",
+                  "message": "Верификация уже завершена — документ нельзя заменить"
                 }
               }
             }
@@ -912,6 +972,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "MESSAGING_NOT_ALLOWED",
+                  "message": "Сообщения доступны только после первого контакта или бронирования"
                 }
               }
             }
@@ -1000,6 +1064,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "SLOT_ALREADY_EXISTS",
+                  "message": "Слот на это время уже существует"
                 }
               }
             }
@@ -1013,7 +1081,7 @@
           "Schedule"
         ],
         "summary": "Удалить / заблокировать слот",
-        "description": "US-08. Если на слот есть бронирование — возвращает 409.",
+        "description": "US-08. Если на слот есть бронирование  возвращает 409.",
         "parameters": [
           {
             "name": "slot_id",
@@ -1030,11 +1098,15 @@
             "description": "Слот удалён"
           },
           "409": {
-            "description": "Слот забронирован — сначала отмените бронирование",
+            "description": "Слот забронирован  сначала отмените бронирование",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "SLOT_HAS_BOOKING",
+                  "message": "Слот забронирован — сначала отмените бронирование"
                 }
               }
             }
@@ -1128,6 +1200,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "SLOT_UNAVAILABLE",
+                  "message": "Выбранный слот недоступен для бронирования"
                 }
               }
             }
@@ -1138,6 +1214,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "EMAIL_NOT_CONFIRMED",
+                  "message": "Подтвердите email перед бронированием"
                 }
               }
             }
@@ -1148,6 +1228,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "BOOKING_CONFLICT",
+                  "message": "У вас уже есть бронирование на это время"
                 }
               }
             }
@@ -1229,6 +1313,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Нет доступа к этому бронированию"
                 }
               }
             }
@@ -1239,6 +1327,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "BOOKING_NOT_FOUND",
+                  "message": "Бронирование не найдено"
                 }
               }
             }
@@ -1291,11 +1383,15 @@
             }
           },
           "400": {
-            "description": "Отмена невозможна — сессия уже начата",
+            "description": "Отмена невозможна  сессия уже начата",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "CANCELLATION_NOT_ALLOWED",
+                  "message": "Отмена невозможна: сессия уже началась или прошла"
                 }
               }
             }
@@ -1306,6 +1402,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Нет доступа к этому бронированию"
                 }
               }
             }
@@ -1348,6 +1448,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "NO_SHOW_NOT_ALLOWED",
+                  "message": "Фиксация неявки недоступна для этого бронирования"
                 }
               }
             }
@@ -1358,6 +1462,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Нет доступа к этому бронированию"
                 }
               }
             }
@@ -1432,6 +1540,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "BOOKING_ALREADY_PAID_OR_CANCELLED",
+                  "message": "Бронирование уже оплачено или отменено"
                 }
               }
             }
@@ -1442,6 +1554,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "DUPLICATE_REQUEST",
+                  "message": "Дублирующий запрос: idempotency_key уже использован"
                 }
               }
             }
@@ -1477,6 +1593,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INVALID_SIGNATURE_OR_FORMAT",
+                  "message": "Неверная подпись или формат webhook"
                 }
               }
             }
@@ -1519,6 +1639,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Нет доступа к этому платежу"
                 }
               }
             }
@@ -1576,7 +1700,7 @@
           "Reviews"
         ],
         "summary": "Оставить отзыв после сессии",
-        "description": "US-13. Оценка 1–5 (обязательно) + текст до 1000 символов. Один отзыв на бронирование. Отправляется на модерацию.",
+        "description": "US-13. Оценка 15 (обязательно) + текст до 1000 символов. Один отзыв на бронирование. Отправляется на модерацию.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1604,6 +1728,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "SESSION_NOT_COMPLETED_OR_REVIEW_EXISTS",
+                  "message": "Сессия не завершена или отзыв уже оставлен"
                 }
               }
             }
@@ -1706,6 +1834,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Только психолог, которому оставлен отзыв, может отвечать"
                 }
               }
             }
@@ -1716,6 +1848,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "REPLY_ALREADY_EXISTS",
+                  "message": "Ответ на этот отзыв уже оставлен"
                 }
               }
             }
@@ -1747,6 +1883,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "DOCUMENTS_INCOMPLETE",
+                  "message": "Не все обязательные документы загружены"
                 }
               }
             }
@@ -1757,6 +1897,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "VERIFICATION_ALREADY_PENDING",
+                  "message": "Заявка уже находится на рассмотрении"
                 }
               }
             }
@@ -1834,6 +1978,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -1869,6 +2017,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -1922,6 +2074,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -1977,6 +2133,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -2012,6 +2172,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -2061,6 +2225,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -2114,6 +2282,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -2206,6 +2378,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "INVALID_TELEGRAM_CHAT_ID",
+                  "message": "Неверный или недоступный Telegram chat_id"
                 }
               }
             }
@@ -2247,6 +2423,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "DISPUTE_NOT_ALLOWED",
+                  "message": "Диспут не может быть открыт для этого бронирования"
                 }
               }
             }
@@ -2257,6 +2437,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "DISPUTE_ALREADY_EXISTS",
+                  "message": "Диспут по этому бронированию уже существует"
                 }
               }
             }
@@ -2328,6 +2512,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для администратора"
                 }
               }
             }
@@ -2397,6 +2585,10 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "code": "FORBIDDEN",
+                  "message": "Доступ только для службы поддержки"
                 }
               }
             }
@@ -2419,11 +2611,11 @@
         "properties": {
           "code": {
             "type": "string",
-            "example": "EMAIL_ALREADY_EXISTS"
+            "example": "ERROR_CODE"
           },
           "message": {
             "type": "string",
-            "example": "Пользователь с таким email уже зарегистрирован"
+            "example": "Описание ошибки"
           }
         }
       },
